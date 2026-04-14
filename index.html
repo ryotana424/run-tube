@@ -30,8 +30,8 @@
       color: var(--text);
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
       line-height: 1.5;
-      height: 100dvh;
-      overflow: hidden;
+      min-height: 100dvh;
+      overflow-y: auto;
       display: flex;
       flex-direction: column;
     }
@@ -71,14 +71,13 @@
 
     /* ── Main ── */
     main {
-      flex: 1;
-      min-height: 0;
+      height: 100dvh;
+      flex-shrink: 0;
       display: flex;
       flex-direction: column;
       gap: 12px;
       padding: 12px 16px;
       width: 100%;
-      overflow: hidden;
     }
 
     /* ── Player ── */
@@ -365,6 +364,449 @@
       .btn-threshold { padding: 6px 12px; font-size: .8rem; }
       button { padding: 9px 14px; font-size: .82rem; }
     }
+
+    /* ── Video change modal ── */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.7);
+      backdrop-filter: blur(8px);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .modal-backdrop.hidden { display: none; }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      width: 100%;
+      max-width: 500px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .modal-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .modal-input-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .url-input {
+      flex: 1;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      color: var(--text);
+      font: inherit;
+      font-size: .9rem;
+      padding: 10px 14px;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .url-input:focus { border-color: var(--accent); }
+    .url-input::placeholder { color: var(--muted); }
+
+    .modal-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    /* ── Ride calendar ── */
+    .calendar-section {
+      padding: 16px 16px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .calendar-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .calendar-streak {
+      font-size: .85rem;
+      font-weight: 800;
+      color: var(--yellow);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .calendar-nav {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .calendar-nav-btn {
+      appearance: none;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 8px;
+      font-size: 1.1rem;
+      line-height: 1;
+      padding: 4px 10px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: background .15s;
+    }
+    .calendar-nav-btn:hover { background: var(--surface); border-color: var(--accent); }
+
+    .calendar-month-label {
+      font-size: .85rem;
+      font-weight: 800;
+      color: var(--text);
+      min-width: 90px;
+      text-align: center;
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+    }
+
+    .cal-dow {
+      text-align: center;
+      font-size: .65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 2px 0 4px;
+    }
+    .cal-dow.sun { color: #f87171; }
+    .cal-dow.sat { color: #60a5fa; }
+
+    .cal-day {
+      aspect-ratio: 1;
+      border-radius: 8px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1px;
+      position: relative;
+      transition: border-color .2s, background .2s;
+    }
+    .cal-day.empty { background: transparent; border-color: transparent; }
+    .cal-day.today { border-color: var(--accent); }
+
+    .cal-day.has-ride {
+      border-color: rgba(52,211,153,.5);
+    }
+    .cal-day.has-ride.lvl1 { background: rgba(52,211,153,.10); }
+    .cal-day.has-ride.lvl2 { background: rgba(52,211,153,.20); }
+    .cal-day.has-ride.lvl3 { background: rgba(52,211,153,.35); }
+    .cal-day.has-ride.lvl4 { background: rgba(52,211,153,.55); }
+
+    .cal-day-num {
+      font-size: .75rem;
+      font-weight: 700;
+      color: var(--muted);
+      line-height: 1;
+    }
+    .cal-day.today .cal-day-num { color: var(--accent2); }
+    .cal-day.has-ride .cal-day-num { color: var(--text); }
+
+    .cal-day-time {
+      font-size: .58rem;
+      font-weight: 700;
+      color: var(--green);
+      line-height: 1;
+    }
+
+    .cal-day-avg {
+      font-size: .55rem;
+      font-weight: 600;
+      color: var(--accent2);
+      line-height: 1;
+    }
+    .cal-day-avg::after { content: 'k'; }
+
+    @media (min-width: 480px) {
+      .calendar-grid { gap: 5px; }
+      .cal-day-num  { font-size: .82rem; }
+      .cal-day-time { font-size: .65rem; }
+    }
+
+    @media (min-width: 768px) {
+      .calendar-section { padding: 16px 16px 8px; max-width: 560px; }
+    }
+
+    /* ── Video history section ── */
+    .history-section {
+      padding: 0 16px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .history-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .history-label {
+      font-size: .72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: var(--muted);
+    }
+
+    .history-clear {
+      display: none;
+      font-size: .72rem;
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+    .history-clear:hover { color: var(--red); background: rgba(248,113,113,.1); }
+
+    .history-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .history-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 6px 10px;
+      cursor: pointer;
+      font-size: .8rem;
+      font-weight: 600;
+      color: var(--text);
+      transition: border-color .15s, background .15s;
+      max-width: 240px;
+    }
+    .history-item:hover { border-color: var(--accent); background: rgba(108,99,255,.08); }
+    .history-item.current { border-color: rgba(108,99,255,.5); color: var(--accent2); }
+
+    .history-thumb {
+      width: 40px;
+      height: 28px;
+      border-radius: 4px;
+      object-fit: cover;
+      flex-shrink: 0;
+      background: var(--surface);
+    }
+
+    .history-title {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 140px;
+    }
+
+    .history-empty {
+      font-size: .8rem;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    .btn-video-change {
+      background: rgba(108,99,255,.12);
+      color: var(--accent2);
+      border: 1px solid rgba(108,99,255,.25);
+    }
+
+    @media (min-width: 768px) {
+      .history-section { padding: 0 16px 16px; }
+    }
+
+    /* ── Interval mode ── */
+    .btn-interval {
+      appearance: none;
+      border: 1px solid rgba(251,191,36,.3);
+      background: rgba(251,191,36,.1);
+      color: var(--yellow);
+      border-radius: var(--radius-md);
+      font: inherit;
+      font-size: .85rem;
+      font-weight: 700;
+      padding: 8px 16px;
+      cursor: pointer;
+      transition: all .15s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-interval:hover { background: rgba(251,191,36,.18); border-color: var(--yellow); }
+    .btn-interval.active {
+      background: linear-gradient(135deg, #d97706, #f59e0b);
+      border-color: transparent;
+      color: #000;
+      box-shadow: 0 3px 14px rgba(251,191,36,.4);
+    }
+
+    .interval-banner {
+      display: none;
+      flex-direction: column;
+      gap: 6px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+    }
+    .interval-banner.visible { display: flex; }
+
+    .interval-banner-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .interval-phase-label {
+      font-size: .78rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+    .interval-phase-label.warmup  { color: var(--green); }
+    .interval-phase-label.hard    { color: var(--red); }
+    .interval-phase-label.rest    { color: #60a5fa; }
+    .interval-phase-label.cooldown{ color: var(--accent2); }
+
+    .interval-timer {
+      font-size: 1.1rem;
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+      color: var(--text);
+    }
+
+    .interval-round {
+      font-size: .72rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .interval-target {
+      font-size: .72rem;
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    .interval-progress-track {
+      height: 4px;
+      background: var(--border);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .interval-progress-fill {
+      height: 100%;
+      border-radius: 99px;
+      transition: width .5s linear, background .5s;
+    }
+    .interval-phase-label.warmup  ~ .interval-progress-fill,
+    .warmup  .interval-progress-fill { background: var(--green); }
+    .hard    .interval-progress-fill { background: var(--red); }
+    .rest    .interval-progress-fill { background: #60a5fa; }
+    .cooldown .interval-progress-fill{ background: var(--accent2); }
+
+    @media (min-width: 768px) {
+      .btn-interval { padding: 6px 8px; font-size: .78rem; }
+    }
+
+    /* ── Speed profile hint ── */
+    .profile-hint {
+      font-size: .72rem;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+    .profile-hint:empty { display: none; }
+    .profile-hint-text { flex: 1; }
+    .profile-hint-reset {
+      appearance: none;
+      border: none;
+      background: none;
+      color: var(--muted);
+      font: inherit;
+      font-size: .7rem;
+      cursor: pointer;
+      padding: 2px 5px;
+      border-radius: 4px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+    .profile-hint-reset:hover { color: var(--red); background: rgba(248,113,113,.1); }
+
+    /* ── Phase change flash ── */
+    @keyframes phase-flash-in {
+      0%   { opacity: 0; transform: scale(.6); }
+      20%  { opacity: 1; transform: scale(1.05); }
+      60%  { opacity: 1; transform: scale(1); }
+      100% { opacity: 0; transform: scale(1.1); }
+    }
+
+    .phase-flash {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      z-index: 20;
+      pointer-events: none;
+      background: rgba(8,12,20,.55);
+      backdrop-filter: blur(2px);
+      animation: phase-flash-in 2.2s cubic-bezier(.2,0,.4,1) forwards;
+    }
+    .phase-flash.hidden { display: none; }
+
+    .phase-flash-name {
+      font-size: 1.6rem;
+      font-weight: 900;
+      letter-spacing: -.02em;
+      color: #fff;
+      text-shadow: 0 2px 20px rgba(0,0,0,.8);
+    }
+
+    .phase-flash-speed {
+      font-size: 5rem;
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+      text-shadow: 0 4px 40px currentColor;
+    }
+    .phase-flash-speed.warmup   { color: var(--green); }
+    .phase-flash-speed.hard     { color: var(--red); }
+    .phase-flash-speed.rest     { color: #60a5fa; }
+    .phase-flash-speed.cooldown { color: var(--accent2); }
   </style>
 </head>
 <body>
@@ -379,6 +821,11 @@
         <div class="overlay-icon" id="overlayIcon">🚴</div>
         <div class="overlay-title" id="overlayTitle">Bluetooth で接続してください</div>
         <div class="overlay-sub" id="overlaySub">バイクの電源を入れて「バイク接続」ボタンを押してください</div>
+      </div>
+      <!-- Phase change flash -->
+      <div class="phase-flash hidden" id="phaseFlash">
+        <div class="phase-flash-name" id="phaseFlashName"></div>
+        <div class="phase-flash-speed" id="phaseFlashSpeed"></div>
       </div>
     </div>
 
@@ -409,12 +856,34 @@
           <button class="btn-threshold" data-kmh="40">40 km/h</button>
           <button class="btn-threshold" data-kmh="50">50 km/h</button>
         </div>
+        <button class="btn-interval js-interval-toggle">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          Auto
+        </button>
+        <div class="profile-hint js-profile-hint"></div>
         <div class="ride-badge disconnected js-ride-badge" style="margin-left:auto">
           <span class="js-ride-badge-icon">—</span>
           <span class="js-ride-badge-text">未接続</span>
         </div>
       </div>
+      <div class="interval-banner js-interval-banner">
+        <div class="interval-banner-row">
+          <span class="interval-phase-label js-interval-phase">ウォームアップ</span>
+          <span class="interval-timer js-interval-timer">0:00</span>
+          <span class="interval-round js-interval-round"></span>
+        </div>
+        <div class="interval-banner-row">
+          <span class="interval-target js-interval-target">目標 — km/h</span>
+        </div>
+        <div class="interval-progress-track">
+          <div class="interval-progress-fill js-interval-fill" style="width:0%"></div>
+        </div>
+      </div>
       <div class="btn-row">
+        <button class="btn-video-change js-video-change">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="7" width="20" height="15" rx="2"/><path d="M16 3l-4 4-4-4"/></svg>
+          動画を変更
+        </button>
         <button class="btn-last js-connect-last" style="display:none">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2a7 7 0 0 1 7 7c0 5-7 13-7 13S5 14 5 9a7 7 0 0 1 7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
           <span class="last-name js-last-name">前回のデバイス</span>に接続
@@ -491,8 +960,32 @@
         </div>
       </div>
 
+      <!-- Interval / Auto -->
+      <button class="btn-interval js-interval-toggle" style="width:100%;justify-content:center">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        Auto
+      </button>
+      <div class="profile-hint js-profile-hint"></div>
+      <div class="interval-banner js-interval-banner">
+        <div class="interval-banner-row">
+          <span class="interval-phase-label js-interval-phase">ウォームアップ</span>
+          <span class="interval-timer js-interval-timer">0:00</span>
+        </div>
+        <div class="interval-banner-row">
+          <span class="interval-round js-interval-round"></span>
+          <span class="interval-target js-interval-target">目標 — km/h</span>
+        </div>
+        <div class="interval-progress-track">
+          <div class="interval-progress-fill js-interval-fill" style="width:0%"></div>
+        </div>
+      </div>
+
       <!-- BT Buttons -->
       <div class="btn-row" style="flex-direction:column">
+        <button class="btn-video-change js-video-change" style="width:100%;justify-content:center">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="7" width="20" height="15" rx="2"/><path d="M16 3l-4 4-4-4"/></svg>
+          動画を変更
+        </button>
         <button class="btn-last js-connect-last" style="display:none;width:100%;justify-content:center">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2a7 7 0 0 1 7 7c0 5-7 13-7 13S5 14 5 9a7 7 0 0 1 7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
           <span class="last-name js-last-name">前回のデバイス</span>に接続
@@ -516,12 +1009,64 @@
 
   </main>
 
+  <!-- Ride calendar -->
+  <div class="calendar-section" id="calendarSection">
+    <div class="calendar-header-row">
+      <div class="calendar-streak" id="calendarStreak"></div>
+      <div class="calendar-nav">
+        <button class="calendar-nav-btn" id="calPrev">&#8249;</button>
+        <span class="calendar-month-label" id="calMonthLabel"></span>
+        <button class="calendar-nav-btn" id="calNext">&#8250;</button>
+      </div>
+    </div>
+    <div class="calendar-grid" id="calendarGrid"></div>
+  </div>
+
+  <!-- Video history -->
+  <div class="history-section" id="historySection">
+    <div class="history-header">
+      <span class="history-label">動画履歴</span>
+      <button class="history-clear" id="historyClearBtn">クリア</button>
+    </div>
+    <div class="history-list" id="historyList">
+      <span class="history-empty">履歴はありません</span>
+    </div>
+  </div>
+
+  <!-- Video change modal -->
+  <div class="modal-backdrop hidden" id="videoModal">
+    <div class="modal">
+      <div class="modal-title">動画を変更</div>
+      <div class="modal-input-row">
+        <input
+          class="url-input"
+          id="videoUrlInput"
+          type="url"
+          placeholder="YouTube URL または動画ID を入力"
+          autocomplete="off"
+        />
+      </div>
+      <div class="modal-actions">
+        <button class="btn-secondary" id="videoModalClose">キャンセル</button>
+        <button class="btn-primary" id="videoModalApply">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          再生
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script src="https://www.youtube.com/iframe_api"></script>
   <script>
     /* ── Constants ── */
-    const PLAYLIST_ID = 'PL1s89zMwwA_0KHFlD_PL5qVDptDaaC9Yh'
-    const FIRST_VIDEO = 'kXpOEzNZ8hQ'
-    const HYST        = 1.0   // hysteresis ±1 km/h
+    const PLAYLIST_ID    = 'PL1s89zMwwA_0KHFlD_PL5qVDptDaaC9Yh'
+    const FIRST_VIDEO    = 'kXpOEzNZ8hQ'
+    const HYST              = 1.0   // hysteresis ±1 km/h
+    const LS_HISTORY_KEY    = 'runtube_video_history'
+    const HISTORY_MAX       = 20
+    const LS_SPEED_PROFILE     = 'runtube_speed_profile'
+    const PROFILE_MAX_SESSIONS = 5
+    const LS_RIDE_LOG          = 'runtube_ride_log'  // { "2025-04-14": 1234, ... } 秒数
 
     const SVC = {
       fitnessMachine:      0x1826,
@@ -538,12 +1083,305 @@
     /* ── localStorage ── */
     const LS_KEY = 'runtube_last_device'
 
+    /* ── Video history ── */
+    function loadHistory() {
+      try { return JSON.parse(localStorage.getItem(LS_HISTORY_KEY)) || [] } catch (_) { return [] }
+    }
+
+    function saveHistory(items) {
+      try { localStorage.setItem(LS_HISTORY_KEY, JSON.stringify(items)) } catch (_) {}
+    }
+
+    function addToHistory(videoId, title) {
+      const items = loadHistory().filter(h => h.id !== videoId)
+      items.unshift({ id: videoId, title: title || videoId, addedAt: Date.now() })
+      saveHistory(items.slice(0, HISTORY_MAX))
+      renderHistory()
+    }
+
+    function renderHistory() {
+      const items = loadHistory()
+      const list  = document.getElementById('historyList')
+      if (!items.length) {
+        list.innerHTML = '<span class="history-empty">履歴はありません</span>'
+        return
+      }
+      list.innerHTML = items.map(h => `
+        <button class="history-item${h.id === currentVideoId ? ' current' : ''}" data-id="${h.id}" title="${h.title}">
+          <img class="history-thumb" src="https://i.ytimg.com/vi/${h.id}/default.jpg" alt="" loading="lazy" />
+          <span class="history-title">${h.title}</span>
+        </button>
+      `).join('')
+      list.querySelectorAll('.history-item').forEach(btn => {
+        btn.addEventListener('click', () => loadVideo(btn.dataset.id))
+      })
+    }
+
+    /* ── YouTube URL parser ── */
+    function extractVideoId(input) {
+      if (!input) return null
+      input = input.trim()
+      // Plain video ID (11 chars, alphanumeric + - _)
+      if (/^[A-Za-z0-9_-]{11}$/.test(input)) return input
+      try {
+        const url = new URL(input.includes('://') ? input : 'https://' + input)
+        // youtu.be/VIDEO_ID
+        if (url.hostname === 'youtu.be') return url.pathname.slice(1).split('?')[0] || null
+        // youtube.com/watch?v=VIDEO_ID
+        const v = url.searchParams.get('v')
+        if (v) return v
+        // youtube.com/shorts/VIDEO_ID or /embed/VIDEO_ID
+        const m = url.pathname.match(/\/(shorts|embed|v)\/([A-Za-z0-9_-]{11})/)
+        if (m) return m[2]
+      } catch (_) {}
+      return null
+    }
+
+    /* ── Load video ── */
+    let currentVideoId = null
+
+    function loadVideo(videoId, saveToHistory = true) {
+      if (!videoId || !player?.loadVideoById) return
+      currentVideoId = videoId
+      player.loadVideoById(videoId)
+      player.pauseVideo()
+      if (saveToHistory) {
+        // Fetch title asynchronously via oEmbed (no API key needed)
+        fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`)
+          .then(r => r.ok ? r.json() : null)
+          .then(data => {
+            addToHistory(videoId, data?.title || videoId)
+          })
+          .catch(() => addToHistory(videoId, videoId))
+      } else {
+        renderHistory()
+      }
+    }
+
     function saveLastDevice(name, namePrefix) {
       try { localStorage.setItem(LS_KEY, JSON.stringify({ name, namePrefix })) } catch (_) {}
     }
 
     function loadLastDevice() {
       try { return JSON.parse(localStorage.getItem(LS_KEY)) } catch (_) { return null }
+    }
+
+    /* ── Speed profile (Auto mode optimization) ── */
+    function loadSpeedProfile() {
+      try { return JSON.parse(localStorage.getItem(LS_SPEED_PROFILE)) || [] } catch (_) { return [] }
+    }
+
+    function saveSpeedProfile(sessions) {
+      try { localStorage.setItem(LS_SPEED_PROFILE, JSON.stringify(sessions)) } catch (_) {}
+    }
+
+    // セッション平均速度を記録（直近 PROFILE_MAX_SESSIONS 件を保持）
+    function recordSessionAvg(avgKmh) {
+      const sessions = loadSpeedProfile()
+      sessions.unshift({ avg: Math.round(avgKmh * 10) / 10, at: Date.now() })
+      saveSpeedProfile(sessions.slice(0, PROFILE_MAX_SESSIONS))
+    }
+
+    // 保存済みセッションから全体平均を返す。データがなければ null
+    function calcProfileAvg() {
+      const sessions = loadSpeedProfile()
+      if (!sessions.length) return null
+      return sessions.reduce((s, x) => s + x.avg, 0) / sessions.length
+    }
+
+    // プロファイル平均をもとに最適化した閾値を返す
+    // 「少し頑張れば届く」= 平均の 80%（下限 25、上限 48）
+    function optimizedBaseThreshold() {
+      const avg = calcProfileAvg()
+      if (avg === null) return null
+      return Math.min(48, Math.max(25, Math.round(avg * 0.80)))
+    }
+
+    // INTERVAL_PHASES をベース閾値でスケールした新しいフェーズ配列を生成
+    function buildOptimizedPhases(baseThreshold) {
+      // 元のフェーズの最小閾値 (=ウォームアップ 30) を基準にオフセット計算
+      const DEFAULT_BASE = 30
+      const offset = baseThreshold - DEFAULT_BASE
+      return INTERVAL_PHASES.map(p => ({
+        ...p,
+        targetKmh: Math.min(55, Math.max(20, p.targetKmh + offset))
+      }))
+    }
+
+    function clearSpeedProfile() {
+      try { localStorage.removeItem(LS_SPEED_PROFILE) } catch (_) {}
+    }
+
+    /* ── Ride log (daily seconds) ── */
+    function todayKey() {
+      const d = new Date()
+      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`
+    }
+
+    function loadRideLog() {
+      try { return JSON.parse(localStorage.getItem(LS_RIDE_LOG)) || {} } catch (_) { return {} }
+    }
+
+    // ログエントリを正規化（旧形式の数値にも対応）
+    function normalizeEntry(v) {
+      if (typeof v === 'number') return { sec: v, avgKmh: null, samples: 0 }
+      return { sec: 0, avgKmh: null, samples: 0, ...v }
+    }
+
+    function addRideSecond() {
+      const log   = loadRideLog()
+      const key   = todayKey()
+      const entry = normalizeEntry(log[key] || 0)
+      // 平均速度の累積更新（走行中の currentSpeed を使用）
+      if (currentSpeed !== null && currentSpeed > 0) {
+        const total = (entry.avgKmh ?? 0) * entry.samples + currentSpeed
+        entry.samples++
+        entry.avgKmh = Math.round((total / entry.samples) * 10) / 10
+      }
+      entry.sec++
+      log[key] = entry
+      try { localStorage.setItem(LS_RIDE_LOG, JSON.stringify(log)) } catch (_) {}
+    }
+
+    function startRideCounting() {
+      if (rideSecTimer) return
+      rideSecTimer = setInterval(() => {
+        addRideSecond()
+        // 秒が変わるたびにカレンダーの今日セルだけ更新
+        refreshCalendarToday()
+      }, 1000)
+    }
+
+    function stopRideCounting() {
+      if (rideSecTimer) { clearInterval(rideSecTimer); rideSecTimer = null }
+      renderCalendar()   // 停止時に確定描画
+    }
+
+    /* ── Streak ── */
+    function calcStreak() {
+      const log = loadRideLog()
+      let streak = 0
+      const d = new Date()
+      // 今日データがない場合は昨日から遡る
+      const todayStr = todayKey()
+      if (!log[todayStr] || normalizeEntry(log[todayStr]).sec === 0) {
+        d.setDate(d.getDate() - 1)
+      }
+      while (true) {
+        const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`
+        if (!log[key] || normalizeEntry(log[key]).sec === 0) break
+        streak++
+        d.setDate(d.getDate() - 1)
+      }
+      return streak
+    }
+
+    /* ── Calendar render ── */
+    function rideLevel(sec) {
+      if (!sec) return 0
+      if (sec < 5 * 60)  return 1
+      if (sec < 15 * 60) return 2
+      if (sec < 30 * 60) return 3
+      return 4
+    }
+
+    function fmtSec(sec) {
+      if (sec < 60) return `${sec}s`
+      const h = Math.floor(sec / 3600)
+      const m = Math.floor((sec % 3600) / 60)
+      if (h > 0) return `${h}h${m}m`
+      return `${m}分`
+    }
+
+    function buildCalCell(key, day, todayStr) {
+      const log    = loadRideLog()
+      const entry  = normalizeEntry(log[key] || 0)
+      const { sec, avgKmh } = entry
+      const lvl    = rideLevel(sec)
+
+      const cell = document.createElement('div')
+      cell.dataset.key = key
+      let cls = 'cal-day'
+      if (key === todayStr) cls += ' today'
+      if (lvl > 0)          cls += ` has-ride lvl${lvl}`
+      cell.className = cls
+
+      const numEl = document.createElement('div')
+      numEl.className = 'cal-day-num'
+      numEl.textContent = day
+      cell.appendChild(numEl)
+
+      if (sec > 0) {
+        const timeEl = document.createElement('div')
+        timeEl.className = 'cal-day-time'
+        timeEl.textContent = fmtSec(sec)
+        cell.appendChild(timeEl)
+      }
+
+      if (avgKmh !== null && avgKmh > 0) {
+        const avgEl = document.createElement('div')
+        avgEl.className = 'cal-day-avg'
+        avgEl.textContent = `${avgKmh}`
+        cell.appendChild(avgEl)
+      }
+
+      return cell
+    }
+
+    function renderCalendar() {
+      const streak   = calcStreak()
+      const todayStr = todayKey()
+
+      // ストリーク
+      const streakEl = document.getElementById('calendarStreak')
+      streakEl.innerHTML = streak > 0 ? `🔥 ${streak}日連続` : ''
+
+      // 月ラベル
+      document.getElementById('calMonthLabel').textContent =
+        new Date(calViewYear, calViewMonth, 1)
+          .toLocaleDateString('ja-JP', { year: 'numeric', month: 'long' })
+
+      const grid = document.getElementById('calendarGrid')
+      grid.innerHTML = ''
+
+      // 曜日ヘッダー
+      const dows = ['日','月','火','水','木','金','土']
+      dows.forEach((d, i) => {
+        const el = document.createElement('div')
+        el.className = `cal-dow${i===0?' sun':i===6?' sat':''}`
+        el.textContent = d
+        grid.appendChild(el)
+      })
+
+      // 月初の曜日オフセット
+      const firstDow = new Date(calViewYear, calViewMonth, 1).getDay()
+      for (let i = 0; i < firstDow; i++) {
+        const el = document.createElement('div')
+        el.className = 'cal-day empty'
+        grid.appendChild(el)
+      }
+
+      // 日付セル
+      const daysInMonth = new Date(calViewYear, calViewMonth + 1, 0).getDate()
+      for (let day = 1; day <= daysInMonth; day++) {
+        const key = `${calViewYear}-${String(calViewMonth+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`
+        grid.appendChild(buildCalCell(key, day, todayStr))
+      }
+    }
+
+    // 走行中に今日のセルだけ更新（全再描画を避ける）
+    function refreshCalendarToday() {
+      const key    = todayKey()
+      const cell   = document.querySelector(`.cal-day[data-key="${key}"]`)
+      if (!cell) return
+
+      const newCell = buildCalCell(key, Number(key.slice(-2)), key)
+      cell.replaceWith(newCell)
+
+      // ストリークも更新
+      const streak   = calcStreak()
+      const streakEl = document.getElementById('calendarStreak')
+      streakEl.innerHTML = streak > 0 ? `🔥 ${streak}日連続` : ''
     }
 
     /* ── State ── */
@@ -557,6 +1395,29 @@
     let currentSpeed = null
     let thresholdKmh = 30          // default 30 km/h
     let patrolTimer  = null
+
+    /* ── Interval mode ── */
+    // フェーズ定義: name, durationSec, targetKmh, type
+    const INTERVAL_PHASES = [
+      { name: 'ウォームアップ', durationSec: 3 * 60, targetKmh: 30, type: 'warmup'   },
+      { name: '高負荷',         durationSec: 2 * 60, targetKmh: 40, type: 'hard'     },
+      { name: '休憩',           durationSec: 1 * 60, targetKmh: 30, type: 'rest'     },
+      { name: '高負荷',         durationSec: 2 * 60, targetKmh: 45, type: 'hard'     },
+      { name: '休憩',           durationSec: 1 * 60, targetKmh: 30, type: 'rest'     },
+      { name: '高負荷',         durationSec: 2 * 60, targetKmh: 50, type: 'hard'     },
+      { name: 'クールダウン',   durationSec: 2 * 60, targetKmh: 30, type: 'cooldown' },
+    ]
+
+    let rideSecTimer   = null   // 走行秒数カウント用インターバル
+    let calViewYear    = new Date().getFullYear()
+    let calViewMonth   = new Date().getMonth()  // 0-indexed
+
+    let intervalActive       = false
+    let intervalPhaseIdx     = 0
+    let intervalPhaseElapsed = 0   // seconds elapsed in current phase
+    let intervalTimer        = null
+    let intervalSpeedSamples = []  // 走行中に収集した速度サンプル（このセッション分）
+    let intervalBasePhases   = null // 最適化後のフェーズ定義（null=デフォルト使用）
 
     /* ── DOM helpers (supports duplicate elements in mobile/sidebar) ── */
     const $all = s => [...document.querySelectorAll(s)]
@@ -582,10 +1443,18 @@
     const connectLastBtns= $all('.js-connect-last')
     const lastNames      = $all('.js-last-name')
     const threshBtns     = $all('.btn-threshold')
+    const intervalToggleBtns = $all('.js-interval-toggle')
+    const intervalBanners    = $all('.js-interval-banner')
+    const intervalPhaseEls   = $all('.js-interval-phase')
+    const intervalTimerEls   = $all('.js-interval-timer')
+    const intervalRoundEls   = $all('.js-interval-round')
+    const intervalTargetEls  = $all('.js-interval-target')
+    const intervalFillEls    = $all('.js-interval-fill')
 
     /* ── Threshold preset buttons ── */
     threshBtns.forEach(btn => {
       btn.addEventListener('click', () => {
+        if (intervalActive) return          // インターバル中は手動変更不可
         thresholdKmh = Number(btn.dataset.kmh)
         threshBtns.forEach(b => b.classList.toggle('selected', b === btn))
         if (btConnected && currentSpeed !== null) evaluateSpeed(currentSpeed)
@@ -594,17 +1463,38 @@
     // select default (30)
     threshBtns.forEach(b => b.classList.toggle('selected', Number(b.dataset.kmh) === thresholdKmh))
 
+    /* ── Interval toggle ── */
+    intervalToggleBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (intervalActive) stopInterval()
+        else startInterval()
+      })
+    })
+
+    /* ── URL param: ?v=VIDEO_ID ── */
+    function getInitialVideoId() {
+      const params = new URLSearchParams(location.search)
+      const v = params.get('v')
+      if (v) {
+        const id = extractVideoId(v)
+        if (id) return id
+      }
+      return FIRST_VIDEO
+    }
+
     /* ── YouTube IFrame API ── */
     function onYouTubeIframeAPIReady() {
       ytReady = true
+      const initVideoId = getInitialVideoId()
+      currentVideoId = initVideoId
       player = new YT.Player('yt-player', {
-        videoId: FIRST_VIDEO,
+        videoId: initVideoId,
         playerVars: {
           autoplay:       0,
           controls:       0,
           disablekb:      1,
-          listType:       'playlist',
-          list:           PLAYLIST_ID,
+          listType:       initVideoId === FIRST_VIDEO ? 'playlist' : undefined,
+          list:           initVideoId === FIRST_VIDEO ? PLAYLIST_ID : undefined,
           rel:            0,
           modestbranding: 1,
           fs:             0,
@@ -615,7 +1505,6 @@
 
     function onPlayerReady() {
       // Autoplay policy unlock: mute → play → pause → unmute
-      // This primes the player with a user-gesture context established at connect time.
       player.mute()
       player.playVideo()
       setTimeout(() => {
@@ -648,6 +1537,175 @@
     function tryPause() {
       if (!ytReady || !player?.pauseVideo) return
       player.pauseVideo()
+    }
+
+    /* ── Interval mode ── */
+    function currentPhases() {
+      return intervalBasePhases || INTERVAL_PHASES
+    }
+
+    function startInterval() {
+      // プロファイルから最適化フェーズを構築
+      const baseThresh = optimizedBaseThreshold()
+      intervalBasePhases = baseThresh !== null ? buildOptimizedPhases(baseThresh) : null
+
+      intervalActive       = true
+      intervalPhaseIdx     = 0
+      intervalPhaseElapsed = 0
+      intervalSpeedSamples = []
+
+      applyIntervalPhase()
+      intervalToggleBtns.forEach(b => b.classList.add('active'))
+      intervalBanners.forEach(b => b.classList.add('visible'))
+      threshBtns.forEach(b => { b.disabled = true; b.classList.remove('selected') })
+      intervalTimer = setInterval(tickInterval, 1000)
+
+      // プロファイルヒントを更新
+      updateProfileHint()
+    }
+
+    function stopInterval() {
+      // 走行サンプルが十分あればセッション平均を保存
+      if (intervalSpeedSamples.length >= 10) {
+        const avg = intervalSpeedSamples.reduce((s, v) => s + v, 0) / intervalSpeedSamples.length
+        recordSessionAvg(avg)
+        updateProfileHint()
+      }
+
+      intervalActive     = false
+      intervalBasePhases = null
+      if (intervalTimer) { clearInterval(intervalTimer); intervalTimer = null }
+      intervalToggleBtns.forEach(b => b.classList.remove('active'))
+      intervalBanners.forEach(b => b.classList.remove('visible'))
+      threshBtns.forEach(b => { b.disabled = false })
+      // デフォルト閾値に戻す
+      thresholdKmh = 30
+      threshBtns.forEach(b => b.classList.toggle('selected', Number(b.dataset.kmh) === 30))
+      updateIntervalStartOverlay()
+    }
+
+    function applyIntervalPhase() {
+      const phase = currentPhases()[intervalPhaseIdx]
+      thresholdKmh = phase.targetKmh
+      updateIntervalUI()
+      // 接続中ならオーバーレイの閾値テキストも更新
+      if (btConnected && !isRiding) {
+        overlaySub.textContent = `${thresholdKmh} km/h 以上で動画が再生されます`
+      }
+      // フェーズ切り替え演出（最初のフェーズも含む）
+      showPhaseFlash(phase)
+    }
+
+    function showPhaseFlash(phase) {
+      const el      = document.getElementById('phaseFlash')
+      const nameEl  = document.getElementById('phaseFlashName')
+      const speedEl = document.getElementById('phaseFlashSpeed')
+      if (!el) return
+
+      // リセットしてアニメーション再起動
+      el.classList.add('hidden')
+      el.style.animation = 'none'
+      nameEl.textContent  = phase.name
+      speedEl.textContent = `${phase.targetKmh} km/h`
+      speedEl.className   = `phase-flash-speed ${phase.type}`
+
+      // 1フレーム待ってからアニメーション開始
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          el.classList.remove('hidden')
+          el.style.animation = ''
+          // アニメーション終了後に非表示
+          el.addEventListener('animationend', () => el.classList.add('hidden'), { once: true })
+        })
+      })
+    }
+
+    function tickInterval() {
+      intervalPhaseElapsed++
+      // 走行中なら速度サンプルを収集
+      if (isRiding && currentSpeed !== null) {
+        intervalSpeedSamples.push(currentSpeed)
+      }
+      const phases = currentPhases()
+      const phase  = phases[intervalPhaseIdx]
+      if (intervalPhaseElapsed >= phase.durationSec) {
+        // 次のフェーズへ
+        intervalPhaseIdx++
+        intervalPhaseElapsed = 0
+        if (intervalPhaseIdx >= phases.length) {
+          // 全フェーズ完了
+          stopInterval()
+          if (btConnected) {
+            setOverlay(true, '🏆', 'Auto 完了！', 'お疲れさまでした')
+            setTimeout(() => {
+              if (btConnected) setOverlay(false)
+            }, 4000)
+          }
+          return
+        }
+        applyIntervalPhase()
+      } else {
+        updateIntervalUI()
+      }
+    }
+
+    function updateIntervalUI() {
+      const phases   = currentPhases()
+      const phase    = phases[intervalPhaseIdx]
+      const remain   = phase.durationSec - intervalPhaseElapsed
+      const progress = intervalPhaseElapsed / phase.durationSec * 100
+      const mm = String(Math.floor(remain / 60)).padStart(1, '0')
+      const ss = String(remain % 60).padStart(2, '0')
+
+      // 何ラウンド目か（高負荷フェーズをカウント）
+      const hardPhases = phases.filter(p => p.type === 'hard')
+      const passedHard = phases.slice(0, intervalPhaseIdx + 1).filter(p => p.type === 'hard').length
+      const roundText  = hardPhases.length > 0
+        ? `${passedHard} / ${hardPhases.length} セット`
+        : ''
+
+      intervalPhaseEls.forEach(el => {
+        el.textContent = phase.name
+        el.className   = `interval-phase-label js-interval-phase ${phase.type}`
+      })
+      intervalTimerEls.forEach(el => el.textContent = `${mm}:${ss}`)
+      intervalRoundEls.forEach(el => el.textContent = roundText)
+      intervalTargetEls.forEach(el => el.textContent = `目標 ${phase.targetKmh} km/h`)
+      intervalFillEls.forEach(el => {
+        el.style.width = `${progress}%`
+        // フェーズ色をバーに反映
+        const colors = { warmup: 'var(--green)', hard: 'var(--red)', rest: '#60a5fa', cooldown: 'var(--accent2)' }
+        el.style.background = colors[phase.type] || 'var(--accent)'
+      })
+    }
+
+    function updateIntervalStartOverlay() {
+      if (btConnected && !isRiding) {
+        overlaySub.textContent = `${thresholdKmh} km/h 以上で動画が再生されます`
+      }
+    }
+
+    function updateProfileHint() {
+      const sessions  = loadSpeedProfile()
+      const hintEls   = $all('.js-profile-hint')
+      if (!sessions.length) {
+        hintEls.forEach(el => { el.innerHTML = '' })
+        return
+      }
+      const avg        = sessions.reduce((s, x) => s + x.avg, 0) / sessions.length
+      const optimized  = Math.min(48, Math.max(25, Math.round(avg * 0.80)))
+      const count      = sessions.length
+      const label      = `⚡ 最適化済み ${optimized} km/h〜（${count}回分）`
+      hintEls.forEach(el => {
+        el.innerHTML = `<span class="profile-hint-text">${label}</span><button class="profile-hint-reset js-profile-reset">リセット</button>`
+      })
+      // リセットボタンのイベント（動的生成なので毎回付け直す）
+      $all('.js-profile-reset').forEach(btn => {
+        btn.addEventListener('click', () => {
+          clearSpeedProfile()
+          updateProfileHint()
+        })
+      })
     }
 
     /* ── Iris / Patrol ── */
@@ -688,12 +1746,14 @@
         rideBadgeTexts.forEach(el => el.textContent = '走行中')
         speedVals.forEach(el => el.classList.add('riding'))
         cardSpeeds.forEach(el => el.classList.add('active'))
+        startRideCounting()
       } else {
         rideBadges.forEach(el => el.className = 'ride-badge stopped js-ride-badge')
         rideBadgeIcons.forEach(el => el.textContent = '🔴')
         rideBadgeTexts.forEach(el => el.textContent = '停止中')
         speedVals.forEach(el => el.classList.remove('riding'))
         cardSpeeds.forEach(el => el.classList.remove('active'))
+        stopRideCounting()
       }
     }
 
@@ -717,6 +1777,8 @@
       } else {
         connDot.className = 'dot'
         disconnectBtns.forEach(el => el.disabled = true)
+        if (intervalActive) stopInterval()
+        stopRideCounting()
         isRiding     = false
         currentSpeed = null
         resetIris()
@@ -877,10 +1939,64 @@
       if (last?.namePrefix) connect(false, last.namePrefix)
     }))
 
+    /* ── Video modal ── */
+    const videoModal    = document.getElementById('videoModal')
+    const videoUrlInput = document.getElementById('videoUrlInput')
+    const videoModalClose = document.getElementById('videoModalClose')
+    const videoModalApply = document.getElementById('videoModalApply')
+
+    function openVideoModal() {
+      videoUrlInput.value = ''
+      videoModal.classList.remove('hidden')
+      videoUrlInput.focus()
+    }
+
+    function closeVideoModal() {
+      videoModal.classList.add('hidden')
+    }
+
+    function applyVideoUrl() {
+      const id = extractVideoId(videoUrlInput.value)
+      if (!id) {
+        videoUrlInput.style.borderColor = 'var(--red)'
+        videoUrlInput.focus()
+        setTimeout(() => { videoUrlInput.style.borderColor = '' }, 1500)
+        return
+      }
+      closeVideoModal()
+      loadVideo(id)
+    }
+
+    $all('.js-video-change').forEach(el => el.addEventListener('click', openVideoModal))
+    videoModalClose.addEventListener('click', closeVideoModal)
+    videoModalApply.addEventListener('click', applyVideoUrl)
+    videoUrlInput.addEventListener('keydown', e => { if (e.key === 'Enter') applyVideoUrl() })
+    videoModal.addEventListener('click', e => { if (e.target === videoModal) closeVideoModal() })
+
+    document.getElementById('historyClearBtn').addEventListener('click', () => {
+      saveHistory([])
+      renderHistory()
+    })
+
+    /* ── Calendar nav ── */
+    document.getElementById('calPrev').addEventListener('click', () => {
+      calViewMonth--
+      if (calViewMonth < 0) { calViewMonth = 11; calViewYear-- }
+      renderCalendar()
+    })
+    document.getElementById('calNext').addEventListener('click', () => {
+      calViewMonth++
+      if (calViewMonth > 11) { calViewMonth = 0; calViewYear++ }
+      renderCalendar()
+    })
+
     /* ── Init ── */
     setConnState(false)
     setOverlay(true, '🚴', 'Bluetooth で接続してください', 'バイクの電源を入れて「バイク接続」ボタンを押してください')
     updateLastDeviceBtn()
+    renderHistory()
+    updateProfileHint()
+    renderCalendar()
   </script>
 
 </body>
