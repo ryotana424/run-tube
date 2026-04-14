@@ -1,0 +1,591 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>QB-C01S Web Bluetooth 接続テスト</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #0b1020;
+      --panel: #121933;
+      --panel2: #0f1530;
+      --text: #e8ecf8;
+      --muted: #a7b0c8;
+      --accent: #78a6ff;
+      --ok: #67d08b;
+      --warn: #ffcf66;
+      --err: #ff7b7b;
+      --border: #2a355f;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: linear-gradient(180deg, var(--bg), #090d18 100%);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    .wrap {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 24px 16px 56px;
+    }
+    h1, h2 {
+      margin: 0 0 12px;
+      line-height: 1.2;
+    }
+    h1 { font-size: 1.8rem; }
+    h2 { font-size: 1.15rem; margin-top: 24px; }
+    .panel {
+      background: linear-gradient(180deg, var(--panel), var(--panel2));
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 8px 30px rgba(0,0,0,.25);
+      margin-top: 16px;
+    }
+    .grid {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    button {
+      appearance: none;
+      border: 1px solid var(--border);
+      background: #1a2550;
+      color: var(--text);
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    button:hover { filter: brightness(1.08); }
+    button:disabled { opacity: .6; cursor: not-allowed; }
+    .secondary { background: #16203f; }
+    .danger { background: #4b1f2c; }
+    .muted { color: var(--muted); }
+    .status {
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: #10182c;
+      border: 1px solid var(--border);
+      font-weight: 700;
+    }
+    .ok { color: var(--ok); }
+    .warn { color: var(--warn); }
+    .err { color: var(--err); }
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 13px;
+    }
+    pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+      background: #08101f;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      min-height: 180px;
+      max-height: 380px;
+      overflow: auto;
+      margin: 8px 0 0;
+    }
+    input[type="number"] {
+      width: 100%;
+      border: 1px solid var(--border);
+      background: #0d1430;
+      color: var(--text);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font: inherit;
+    }
+    ul { margin: 8px 0 0 20px; padding: 0; }
+    .pill {
+      display: inline-block;
+      padding: 4px 8px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: #10182c;
+      margin-right: 8px;
+      margin-bottom: 8px;
+      font-size: 12px;
+    }
+    .hint {
+      font-size: .95rem;
+      color: var(--muted);
+    }
+    .data-row {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      margin-top: 12px;
+    }
+    .card {
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #0b1328;
+    }
+    .value {
+      font-size: 1.4rem;
+      font-weight: 800;
+      margin-top: 2px;
+    }
+    a { color: #9cc0ff; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>🚴 QB-C01S Web Bluetooth 接続テスト</h1>
+    <p class="muted">
+      まずは <strong>接続できるか</strong> と <strong>どのBluetoothサービスが見えるか</strong> を確認するためのテストページです。<br>
+      速度やケイデンスが取れれば、あとで「一定速度未満でYouTubeを停止」のロジックに発展できます。
+    </p>
+
+    <div class="panel">
+      <h2>✅ 使い方</h2>
+      <ul>
+        <li><strong>Chrome / Edge 系ブラウザ</strong>で開いてください（iPhone Safari は不可のことが多いです）。</li>
+        <li><strong>HTTPS</strong> か <strong>localhost</strong> で開いてください。単なる <code>file://</code> では Web Bluetooth が使えません。</li>
+        <li>まずバイクの電源を入れて、他のアプリ（NEXGIM、Zwift、MyWhooshなど）が接続していない状態にしてください。</li>
+        <li>うまくいかないときは、最初は「名前指定で接続」、見つからなければ「全デバイスから選ぶ」を試してください。</li>
+      </ul>
+      <div class="row">
+        <span class="pill">候補名: QB-C01S</span>
+        <span class="pill">候補名: NEXGIM</span>
+        <span class="pill">候補名: C01</span>
+        <span class="pill">候補名なし機器もあり得る</span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>🔌 接続</h2>
+      <div class="grid">
+        <div>
+          <div class="hint">速度しきい値（今は表示だけ。後でYouTube停止に使えます）</div>
+          <input id="thresholdInput" type="number" value="10" min="0" step="0.1" />
+        </div>
+        <div>
+          <div class="hint">現在の状態</div>
+          <div id="status" class="status">待機中</div>
+        </div>
+      </div>
+      <div class="row">
+        <button id="connectNamedBtn">名前指定で接続</button>
+        <button id="connectAnyBtn" class="secondary">全デバイスから選ぶ</button>
+        <button id="disconnectBtn" class="danger" disabled>切断</button>
+      </div>
+      <p class="hint">※ 接続後に、見つかったサービス・キャラクタリスティックを自動で列挙します。</p>
+    </div>
+
+    <div class="panel">
+      <h2>📊 取得データ</h2>
+      <div class="data-row">
+        <div class="card">
+          <div class="muted">速度</div>
+          <div class="value" id="speedValue">-</div>
+        </div>
+        <div class="card">
+          <div class="muted">ケイデンス</div>
+          <div class="value" id="cadenceValue">-</div>
+        </div>
+        <div class="card">
+          <div class="muted">パワー</div>
+          <div class="value" id="powerValue">-</div>
+        </div>
+        <div class="card">
+          <div class="muted">しきい値判定</div>
+          <div class="value" id="thresholdState">-</div>
+        </div>
+      </div>
+      <p class="hint">※ FTMSやCycling Powerの標準キャラクタリスティックが見えた場合のみ、人間向けに簡易表示します。見えない場合は下のログに生データを出します。</p>
+    </div>
+
+    <div class="panel">
+      <h2>🧭 見つかったサービス / キャラクタリスティック</h2>
+      <pre id="servicesBox">まだ接続していません。</pre>
+    </div>
+
+    <div class="panel">
+      <h2>📝 ログ</h2>
+      <pre id="logBox">準備完了</pre>
+    </div>
+  </div>
+
+  <script>
+    const SERVICE_UUIDS = {
+      genericAccess: 0x1800,
+      genericAttribute: 0x1801,
+      deviceInformation: 0x180A,
+      battery: 0x180F,
+      fitnessMachine: 0x1826,
+      cyclingSpeedCadence: 0x1816,
+      cyclingPower: 0x1818,
+      heartRate: 0x180D,
+    };
+
+    const CHAR_UUIDS = {
+      indoorBikeData: 0x2AD2,
+      fitnessMachineFeature: 0x2ACC,
+      fitnessMachineStatus: 0x2ADA,
+      trainingStatus: 0x2AD3,
+      supportedResistanceRange: 0x2AD6,
+      supportedPowerRange: 0x2AD8,
+      fitnessMachineControlPoint: 0x2AD9,
+      cscMeasurement: 0x2A5B,
+      cyclingPowerMeasurement: 0x2A63,
+      batteryLevel: 0x2A19,
+      manufacturerName: 0x2A29,
+      modelNumber: 0x2A24,
+      firmwareRevision: 0x2A26,
+      hardwareRevision: 0x2A27,
+      softwareRevision: 0x2A28,
+      serialNumber: 0x2A25,
+    };
+
+    const SERVICE_NAME = new Map([
+      [normalizeUuid(SERVICE_UUIDS.genericAccess), 'Generic Access'],
+      [normalizeUuid(SERVICE_UUIDS.genericAttribute), 'Generic Attribute'],
+      [normalizeUuid(SERVICE_UUIDS.deviceInformation), 'Device Information'],
+      [normalizeUuid(SERVICE_UUIDS.battery), 'Battery'],
+      [normalizeUuid(SERVICE_UUIDS.fitnessMachine), 'Fitness Machine (FTMS)'],
+      [normalizeUuid(SERVICE_UUIDS.cyclingSpeedCadence), 'Cycling Speed and Cadence'],
+      [normalizeUuid(SERVICE_UUIDS.cyclingPower), 'Cycling Power'],
+      [normalizeUuid(SERVICE_UUIDS.heartRate), 'Heart Rate'],
+    ]);
+
+    const CHAR_NAME = new Map([
+      [normalizeUuid(CHAR_UUIDS.indoorBikeData), 'Indoor Bike Data'],
+      [normalizeUuid(CHAR_UUIDS.fitnessMachineFeature), 'Fitness Machine Feature'],
+      [normalizeUuid(CHAR_UUIDS.fitnessMachineStatus), 'Fitness Machine Status'],
+      [normalizeUuid(CHAR_UUIDS.trainingStatus), 'Training Status'],
+      [normalizeUuid(CHAR_UUIDS.supportedResistanceRange), 'Supported Resistance Range'],
+      [normalizeUuid(CHAR_UUIDS.supportedPowerRange), 'Supported Power Range'],
+      [normalizeUuid(CHAR_UUIDS.fitnessMachineControlPoint), 'Fitness Machine Control Point'],
+      [normalizeUuid(CHAR_UUIDS.cscMeasurement), 'CSC Measurement'],
+      [normalizeUuid(CHAR_UUIDS.cyclingPowerMeasurement), 'Cycling Power Measurement'],
+      [normalizeUuid(CHAR_UUIDS.batteryLevel), 'Battery Level'],
+      [normalizeUuid(CHAR_UUIDS.manufacturerName), 'Manufacturer Name'],
+      [normalizeUuid(CHAR_UUIDS.modelNumber), 'Model Number'],
+      [normalizeUuid(CHAR_UUIDS.firmwareRevision), 'Firmware Revision'],
+      [normalizeUuid(CHAR_UUIDS.hardwareRevision), 'Hardware Revision'],
+      [normalizeUuid(CHAR_UUIDS.softwareRevision), 'Software Revision'],
+      [normalizeUuid(CHAR_UUIDS.serialNumber), 'Serial Number'],
+    ]);
+
+    let device = null;
+    let server = null;
+    let activeCharacteristics = [];
+    let lastCsc = null;
+
+    const logBox = document.getElementById('logBox');
+    const servicesBox = document.getElementById('servicesBox');
+    const statusBox = document.getElementById('status');
+    const disconnectBtn = document.getElementById('disconnectBtn');
+    const speedValue = document.getElementById('speedValue');
+    const cadenceValue = document.getElementById('cadenceValue');
+    const powerValue = document.getElementById('powerValue');
+    const thresholdState = document.getElementById('thresholdState');
+    const thresholdInput = document.getElementById('thresholdInput');
+
+    document.getElementById('connectNamedBtn').addEventListener('click', () => connect(false));
+    document.getElementById('connectAnyBtn').addEventListener('click', () => connect(true));
+    document.getElementById('disconnectBtn').addEventListener('click', disconnect);
+
+    function normalizeUuid(uuid) {
+      return BluetoothUUID.getCharacteristic ? BluetoothUUID.canonicalUUID(uuid) : String(uuid);
+    }
+
+    function setStatus(text, cls = '') {
+      statusBox.className = 'status ' + cls;
+      statusBox.textContent = text;
+    }
+
+    function log(message) {
+      const time = new Date().toLocaleTimeString();
+      logBox.textContent += `\n[${time}] ${message}`;
+      logBox.scrollTop = logBox.scrollHeight;
+    }
+
+    function clearOutput() {
+      logBox.textContent = '準備完了';
+      servicesBox.textContent = 'まだ接続していません。';
+      speedValue.textContent = '-';
+      cadenceValue.textContent = '-';
+      powerValue.textContent = '-';
+      thresholdState.textContent = '-';
+      lastCsc = null;
+    }
+
+    function updateThresholdState(speedKmh) {
+      const th = Number(thresholdInput.value || 0);
+      if (!Number.isFinite(speedKmh)) {
+        thresholdState.textContent = '-';
+        return;
+      }
+      thresholdState.textContent = speedKmh < th ? `閾値未満 (${th} km/h)` : `閾値以上 (${th} km/h)`;
+    }
+
+    function toHex(dataView) {
+      const arr = [];
+      for (let i = 0; i < dataView.byteLength; i += 1) {
+        arr.push(dataView.getUint8(i).toString(16).padStart(2, '0'));
+      }
+      return arr.join(' ');
+    }
+
+    function getServiceLabel(service) {
+      return `${SERVICE_NAME.get(service.uuid) || 'Unknown Service'} [${service.uuid}]`;
+    }
+
+    function getCharLabel(characteristic) {
+      return `${CHAR_NAME.get(characteristic.uuid) || 'Unknown Characteristic'} [${characteristic.uuid}]`;
+    }
+
+    function propsToText(props) {
+      return Object.entries(props)
+        .filter(([key, value]) => typeof value === 'boolean' && value)
+        .map(([key]) => key)
+        .join(', ');
+    }
+
+    async function connect(useAcceptAllDevices) {
+      if (!navigator.bluetooth) {
+        alert('このブラウザは Web Bluetooth に対応していません。Chrome / Edge 系で試してください。');
+        return;
+      }
+
+      clearOutput();
+      setStatus('デバイス選択中...', 'warn');
+
+      try {
+        const options = useAcceptAllDevices
+          ? {
+              acceptAllDevices: true,
+              optionalServices: Object.values(SERVICE_UUIDS),
+            }
+          : {
+              filters: [
+                { namePrefix: 'QB' },
+                { namePrefix: 'NEXGIM' },
+                { namePrefix: 'C01' },
+              ],
+              optionalServices: Object.values(SERVICE_UUIDS),
+            };
+
+        device = await navigator.bluetooth.requestDevice(options);
+        device.addEventListener('gattserverdisconnected', onDisconnected);
+
+        setStatus(`接続中: ${device.name || '名称なしデバイス'}`, 'warn');
+        log(`選択されたデバイス: ${device.name || '(名称なし)'} / id=${device.id}`);
+
+        server = await device.gatt.connect();
+        setStatus(`接続済み: ${device.name || '名称なしデバイス'}`, 'ok');
+        disconnectBtn.disabled = false;
+        log('GATT接続に成功しました');
+
+        await inspectServices();
+        await subscribeKnownCharacteristics();
+      } catch (error) {
+        setStatus('接続失敗', 'err');
+        log(`接続エラー: ${error.message || error}`);
+        console.error(error);
+      }
+    }
+
+    async function inspectServices() {
+      if (!server) return;
+      const services = await server.getPrimaryServices();
+      const lines = [];
+      lines.push(`サービス数: ${services.length}`);
+      log(`Primary Services を ${services.length} 件取得しました`);
+
+      for (const service of services) {
+        lines.push(`\n[Service] ${getServiceLabel(service)}`);
+        try {
+          const characteristics = await service.getCharacteristics();
+          for (const characteristic of characteristics) {
+            lines.push(`  - ${getCharLabel(characteristic)} :: ${propsToText(characteristic.properties) || 'no props'}`);
+          }
+        } catch (error) {
+          lines.push(`  - キャラクタリスティック取得失敗: ${error.message || error}`);
+        }
+      }
+      servicesBox.textContent = lines.join('\n');
+    }
+
+    async function subscribeKnownCharacteristics() {
+      const targets = [
+        { service: SERVICE_UUIDS.fitnessMachine, characteristic: CHAR_UUIDS.indoorBikeData, parser: parseIndoorBikeData },
+        { service: SERVICE_UUIDS.fitnessMachine, characteristic: CHAR_UUIDS.fitnessMachineStatus, parser: parseFitnessMachineStatus },
+        { service: SERVICE_UUIDS.cyclingPower, characteristic: CHAR_UUIDS.cyclingPowerMeasurement, parser: parseCyclingPower },
+        { service: SERVICE_UUIDS.cyclingSpeedCadence, characteristic: CHAR_UUIDS.cscMeasurement, parser: parseCscMeasurement },
+      ];
+
+      for (const target of targets) {
+        try {
+          const service = await server.getPrimaryService(target.service);
+          const ch = await service.getCharacteristic(target.characteristic);
+          activeCharacteristics.push(ch);
+          if (ch.properties.notify || ch.properties.indicate) {
+            await ch.startNotifications();
+            ch.addEventListener('characteristicvaluechanged', event => target.parser(event.target.value));
+            log(`通知開始: ${getCharLabel(ch)} / service=${service.uuid}`);
+          } else {
+            const value = await ch.readValue();
+            log(`読取成功: ${getCharLabel(ch)} = ${toHex(value)}`);
+          }
+        } catch (error) {
+          log(`未検出または利用不可: service=${BluetoothUUID.canonicalUUID(target.service)} / char=${BluetoothUUID.canonicalUUID(target.characteristic)}`);
+        }
+      }
+
+      await readInfoCharacteristics();
+    }
+
+    async function readInfoCharacteristics() {
+      const reads = [
+        { service: SERVICE_UUIDS.deviceInformation, characteristic: CHAR_UUIDS.manufacturerName, decoder: decodeUtf8 },
+        { service: SERVICE_UUIDS.deviceInformation, characteristic: CHAR_UUIDS.modelNumber, decoder: decodeUtf8 },
+        { service: SERVICE_UUIDS.deviceInformation, characteristic: CHAR_UUIDS.firmwareRevision, decoder: decodeUtf8 },
+        { service: SERVICE_UUIDS.deviceInformation, characteristic: CHAR_UUIDS.hardwareRevision, decoder: decodeUtf8 },
+        { service: SERVICE_UUIDS.deviceInformation, characteristic: CHAR_UUIDS.softwareRevision, decoder: decodeUtf8 },
+        { service: SERVICE_UUIDS.deviceInformation, characteristic: CHAR_UUIDS.serialNumber, decoder: decodeUtf8 },
+        { service: SERVICE_UUIDS.battery, characteristic: CHAR_UUIDS.batteryLevel, decoder: dv => dv.getUint8(0) + '%' },
+      ];
+
+      for (const item of reads) {
+        try {
+          const service = await server.getPrimaryService(item.service);
+          const ch = await service.getCharacteristic(item.characteristic);
+          const value = await ch.readValue();
+          log(`情報: ${CHAR_NAME.get(ch.uuid) || ch.uuid} = ${item.decoder(value)}`);
+        } catch (_) {
+          // optional
+        }
+      }
+    }
+
+    function decodeUtf8(dataView) {
+      return new TextDecoder().decode(dataView.buffer);
+    }
+
+    function parseIndoorBikeData(dataView) {
+      try {
+        const flags = dataView.getUint16(0, true);
+        let offset = 2;
+        let speedKmh = null;
+        let cadenceRpm = null;
+        let powerW = null;
+
+        speedKmh = dataView.getUint16(offset, true) / 100;
+        offset += 2;
+
+        if (flags & (1 << 1)) offset += 2;
+        if (flags & (1 << 2)) {
+          cadenceRpm = dataView.getUint16(offset, true) / 2;
+          offset += 2;
+        }
+        if (flags & (1 << 3)) offset += 2;
+        if (flags & (1 << 4)) offset += 3;
+        if (flags & (1 << 5)) offset += 2;
+        if (flags & (1 << 6)) {
+          powerW = dataView.getInt16(offset, true);
+          offset += 2;
+        }
+
+        speedValue.textContent = Number.isFinite(speedKmh) ? `${speedKmh.toFixed(2)} km/h` : '-';
+        cadenceValue.textContent = Number.isFinite(cadenceRpm) ? `${cadenceRpm.toFixed(1)} rpm` : cadenceValue.textContent;
+        powerValue.textContent = Number.isFinite(powerW) ? `${powerW} W` : powerValue.textContent;
+        updateThresholdState(speedKmh);
+
+        log(`Indoor Bike Data: speed=${speedKmh?.toFixed?.(2) ?? '?'} km/h, cadence=${cadenceRpm ?? '?'} rpm, power=${powerW ?? '?'} W, raw=${toHex(dataView)}`);
+      } catch (error) {
+        log(`Indoor Bike Data 解析失敗: ${error.message || error}, raw=${toHex(dataView)}`);
+      }
+    }
+
+    function parseFitnessMachineStatus(dataView) {
+      log(`Fitness Machine Status: raw=${toHex(dataView)}`);
+    }
+
+    function parseCyclingPower(dataView) {
+      try {
+        const flags = dataView.getUint16(0, true);
+        const powerW = dataView.getInt16(2, true);
+        powerValue.textContent = `${powerW} W`;
+        log(`Cycling Power: power=${powerW} W, flags=0x${flags.toString(16)}, raw=${toHex(dataView)}`);
+      } catch (error) {
+        log(`Cycling Power 解析失敗: ${error.message || error}, raw=${toHex(dataView)}`);
+      }
+    }
+
+    function parseCscMeasurement(dataView) {
+      try {
+        const flags = dataView.getUint8(0);
+        let offset = 1;
+
+        if (flags & 0x01) {
+          offset += 6;
+        }
+
+        if (flags & 0x02) {
+          const cumulativeCrankRevs = dataView.getUint16(offset, true);
+          offset += 2;
+          const lastCrankEventTime = dataView.getUint16(offset, true);
+
+          if (lastCsc) {
+            const revDiff = (cumulativeCrankRevs - lastCsc.revs) & 0xFFFF;
+            let timeDiff = (lastCrankEventTime - lastCsc.time) & 0xFFFF;
+            if (timeDiff > 0) {
+              const seconds = timeDiff / 1024;
+              const cadence = (revDiff / seconds) * 60;
+              cadenceValue.textContent = `${cadence.toFixed(1)} rpm`;
+              log(`CSC Measurement: cadence=${cadence.toFixed(1)} rpm, raw=${toHex(dataView)}`);
+            } else {
+              log(`CSC Measurement: timeDiff=0, raw=${toHex(dataView)}`);
+            }
+          } else {
+            log(`CSC Measurement 初回サンプル: raw=${toHex(dataView)}`);
+          }
+
+          lastCsc = { revs: cumulativeCrankRevs, time: lastCrankEventTime };
+        } else {
+          log(`CSC Measurement: crankデータなし, raw=${toHex(dataView)}`);
+        }
+      } catch (error) {
+        log(`CSC Measurement 解析失敗: ${error.message || error}, raw=${toHex(dataView)}`);
+      }
+    }
+
+    async function disconnect() {
+      try {
+        if (device?.gatt?.connected) {
+          device.gatt.disconnect();
+        }
+      } catch (error) {
+        log(`切断エラー: ${error.message || error}`);
+      } finally {
+        onDisconnected();
+      }
+    }
+
+    function onDisconnected() {
+      setStatus('切断済み', 'warn');
+      disconnectBtn.disabled = true;
+      if (device) {
+        log(`切断: ${device.name || '(名称なし)'}`);
+      }
+      activeCharacteristics = [];
+      server = null;
+    }
+  </script>
+</body>
+</html>
