@@ -544,8 +544,19 @@
           modestbranding: 1,
           fs:             0,
         },
-        events: { onReady: () => {} },
+        events: { onReady: onPlayerReady },
       })
+    }
+
+    function onPlayerReady() {
+      // Autoplay policy unlock: mute → play → pause → unmute
+      // This primes the player with a user-gesture context established at connect time.
+      player.mute()
+      player.playVideo()
+      setTimeout(() => {
+        player.pauseVideo()
+        player.unMute()
+      }, 500)
     }
 
     /* ── Speed evaluation ── */
@@ -564,8 +575,15 @@
       }
     }
 
-    function tryPlay()  { if (ytReady && player?.playVideo)  player.playVideo() }
-    function tryPause() { if (ytReady && player?.pauseVideo) player.pauseVideo() }
+    function tryPlay() {
+      if (!ytReady || !player?.playVideo) return
+      player.unMute()
+      player.playVideo()
+    }
+    function tryPause() {
+      if (!ytReady || !player?.pauseVideo) return
+      player.pauseVideo()
+    }
 
     /* ── Patrol lamp ── */
     function startPatrol() {
