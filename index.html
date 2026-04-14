@@ -122,26 +122,21 @@
       pointer-events: none;
     }
 
-    /* ── Patrol lamp overlay ── */
-    @keyframes patrol-flash {
-      0%   { background: rgba(220, 30,  30, .55); box-shadow: inset 0 0 80px rgba(255,0,0,.4); }
-      25%  { background: rgba(30,  80, 220, .55); box-shadow: inset 0 0 80px rgba(30,80,255,.4); }
-      50%  { background: rgba(220, 30,  30, .55); box-shadow: inset 0 0 80px rgba(255,0,0,.4); }
-      75%  { background: rgba(30,  80, 220, .55); box-shadow: inset 0 0 80px rgba(30,80,255,.4); }
-      100% { background: rgba(220, 30,  30, .55); box-shadow: inset 0 0 80px rgba(255,0,0,.4); }
+    /* ── Iris transition on player-wrap ── */
+    @keyframes iris-out {
+      from { clip-path: circle(71% at 50% 50%); }
+      to   { clip-path: circle(0%  at 50% 50%); }
+    }
+    @keyframes iris-in {
+      from { clip-path: circle(0%  at 50% 50%); }
+      to   { clip-path: circle(71% at 50% 50%); }
     }
 
-    @keyframes siren-text {
-      0%, 49%  { color: #ff4444; text-shadow: 0 0 30px #ff0000, 0 0 60px #ff0000; }
-      50%, 100% { color: #4488ff; text-shadow: 0 0 30px #0044ff, 0 0 60px #0044ff; }
+    .player-wrap.iris-out {
+      animation: iris-out 1.8s cubic-bezier(.4,0,.6,1) forwards;
     }
-
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      20%       { transform: translateX(-4px); }
-      40%       { transform: translateX(4px); }
-      60%       { transform: translateX(-3px); }
-      80%       { transform: translateX(3px); }
+    .player-wrap.iris-in {
+      animation: iris-in  .6s cubic-bezier(.2,0,.4,1) forwards;
     }
 
     /* ── Overlay ── */
@@ -161,11 +156,6 @@
 
     .overlay.hidden { opacity: 0; pointer-events: none; }
 
-    .overlay.patrol {
-      animation: patrol-flash .5s step-start infinite;
-      backdrop-filter: blur(4px);
-    }
-
     .overlay-icon { font-size: 3.5rem; line-height: 1; }
 
     .overlay-title {
@@ -175,18 +165,12 @@
       line-height: 1.2;
     }
 
-    .overlay.patrol .overlay-title {
-      animation: siren-text .5s step-start infinite, shake .4s ease-in-out infinite;
-    }
-
     .overlay-sub {
       font-size: .9rem;
       color: var(--muted);
       text-align: center;
       max-width: 320px;
     }
-
-    .overlay.patrol .overlay-sub { color: rgba(255,255,255,.7); }
 
     /* ── Stats ── */
     .stats-grid {
@@ -424,6 +408,7 @@
       <span class="ctrl-label">再生閾値</span>
       <div class="threshold-btns">
         <button class="btn-threshold" data-kmh="30">30 km/h</button>
+        <button class="btn-threshold" data-kmh="35">35 km/h</button>
         <button class="btn-threshold" data-kmh="40">40 km/h</button>
         <button class="btn-threshold" data-kmh="50">50 km/h</button>
       </div>
@@ -514,6 +499,7 @@
     const connLabel     = document.getElementById('connLabel')
     const disconnectBtn    = document.getElementById('disconnectBtn')
     const cardSpeed        = document.getElementById('cardSpeed')
+    const playerWrap       = document.querySelector('.player-wrap')
     const threshBtns       = document.querySelectorAll('.btn-threshold')
     const connectLastBtn   = document.getElementById('connectLastBtn')
     const connectLastName  = document.getElementById('connectLastName')
@@ -585,26 +571,32 @@
       player.pauseVideo()
     }
 
-    /* ── Patrol lamp ── */
+    /* ── Iris / Patrol ── */
     function startPatrol() {
       stopPatrol()
-      overlay.classList.add('patrol')
-      overlayIcon.textContent  = '🚨'
-      overlayTitle.textContent = 'STOP! もっと速く！'
+      // アイリスアウト：動画を円形に縮小
+      playerWrap.classList.remove('iris-in')
+      playerWrap.classList.add('iris-out')
+      overlayIcon.textContent  = '🚴'
+      overlayTitle.textContent = 'ペダルを漕いでください'
       overlaySub.textContent   = `${thresholdKmh} km/h 以上で動画が再生されます`
       overlay.classList.remove('hidden')
-      // Auto-stop patrol after 5 s to avoid seizure risk; overlay stays
-      patrolTimer = setTimeout(() => {
-        overlay.classList.remove('patrol')
-        overlayIcon.textContent  = '🚴'
-        overlayTitle.textContent = 'ペダルを漕いでください'
-        overlaySub.textContent   = `${thresholdKmh} km/h 以上で動画が再生されます`
-      }, 5000)
     }
 
     function stopPatrol() {
       if (patrolTimer) { clearTimeout(patrolTimer); patrolTimer = null }
-      overlay.classList.remove('patrol')
+      // アイリスイン：動画を円形に拡大復帰
+      playerWrap.classList.remove('iris-out')
+      playerWrap.classList.add('iris-in')
+      playerWrap.addEventListener('animationend', () => {
+        playerWrap.classList.remove('iris-in')
+      }, { once: true })
+    }
+
+    function resetIris() {
+      if (patrolTimer) { clearTimeout(patrolTimer); patrolTimer = null }
+      playerWrap.classList.remove('iris-out', 'iris-in')
+      playerWrap.style.clipPath = ''
     }
 
     /* ── Riding UI ── */
@@ -628,7 +620,6 @@
     }
 
     function setOverlay(visible, icon = '', title = '', sub = '') {
-      stopPatrol()
       if (visible) {
         overlayIcon.textContent  = icon
         overlayTitle.textContent = title
@@ -650,7 +641,7 @@
         disconnectBtn.disabled = true
         isRiding     = false
         currentSpeed = null
-        stopPatrol()
+        resetIris()
         speedVal.textContent    = '—'
         speedVal.classList.remove('riding')
         cadenceVal.textContent  = '—'
