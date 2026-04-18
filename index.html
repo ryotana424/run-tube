@@ -415,7 +415,6 @@
       }
       .sidebar { display: none; }
       .mobile-controls { display: none; }
-      .calendar-section, .history-section { display: none; }
 
       /* HUD panels */
       .hud { position: absolute; z-index: 20; pointer-events: none; }
@@ -457,7 +456,14 @@
       .hud-summary-streak {
         display: flex; align-items: center; gap: 6px;
         font-size: .78rem; font-weight: 700; color: var(--accent);
+        appearance: none;
+        background: transparent;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+        font: inherit;
       }
+      .hud-summary-streak:hover { color: oklch(from var(--accent) calc(l + 0.08) c h); }
       .hud-summary-divider {
         width: 1px; height: 20px; background: var(--border);
       }
@@ -661,6 +667,16 @@
       gap: 16px;
     }
 
+    .modal.calendar-modal {
+      max-width: 560px;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .modal.video-modal {
+      max-width: 560px;
+    }
+
     .modal-title {
       font-size: 1.1rem;
       font-weight: 800;
@@ -691,6 +707,12 @@
       display: flex;
       gap: 8px;
       justify-content: flex-end;
+    }
+
+    .modal-section-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 4px 0;
     }
 
     /* ── Ride calendar ── */
@@ -830,7 +852,7 @@
 
     /* ── Video history section ── */
     .history-section {
-      padding: 0 16px 12px;
+      padding: 0;
       flex-direction: column;
       gap: 8px;
     }
@@ -992,9 +1014,27 @@
     }
 
     .interval-target {
+      display: inline-flex;
+      align-items: baseline;
+      justify-content: flex-end;
+      gap: 6px;
       font-size: .72rem;
       font-weight: 500;
       color: var(--text-dim);
+      text-align: right;
+    }
+
+    .interval-target-countdown {
+      font-size: .82em;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: .02em;
+    }
+
+    .interval-target-speed {
+      font-size: 1.08em;
+      font-weight: 700;
+      color: var(--text);
     }
 
     .interval-progress-track {
@@ -1067,6 +1107,11 @@
       animation: phase-flash-in 2.2s cubic-bezier(.2,0,.4,1) forwards;
     }
     .phase-flash.hidden { display: none; }
+    .phase-flash.countdown {
+      animation: none;
+      background: rgba(8,12,20,.72);
+      backdrop-filter: blur(6px);
+    }
 
     .phase-flash-name {
       font-size: 1.6rem;
@@ -1087,6 +1132,39 @@
     .phase-flash-speed.hard     { color: oklch(0.72 0.17 25); }
     .phase-flash-speed.rest     { color: oklch(0.75 0.13 220); }
     .phase-flash-speed.cooldown { color: oklch(0.73 0.12 280); }
+    .phase-flash-speed.countdown {
+      font-size: 3.4rem;
+      font-weight: 900;
+      color: #fff;
+      text-shadow: 0 4px 28px rgba(0,0,0,.72);
+      line-height: 1.05;
+    }
+    .phase-flash-speed-caption {
+      font-size: .92rem;
+      font-weight: 700;
+      color: #fff;
+      text-shadow: 0 2px 18px rgba(0,0,0,.7);
+      letter-spacing: .06em;
+      text-align: center;
+      padding: 0 20px;
+      max-width: 90%;
+    }
+    .phase-flash.countdown .phase-flash-name {
+      font-size: 1.2rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.82);
+    }
+    .phase-flash.countdown .phase-flash-speed {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    .phase-flash-count {
+      font-size: 4.8rem;
+      line-height: 1;
+    }
 
     /* ── Half-circle Speed Gauge (Variant B hero) ── */
     .gauge-card {
@@ -1136,6 +1214,8 @@
 
     /* ── Hint small text ── */
     .hint { letter-spacing: 0.005em; }
+
+    .ui-hidden { display: none !important; }
 
     /* ── Video area wrapper (desktop) ── */
     .video-area { display: contents; }
@@ -1190,12 +1270,14 @@
         </div>
       </div>
       <div class="controls-row">
-        <span class="ctrl-label">再生閾値</span>
-        <div class="threshold-btns">
-          <button class="btn-threshold" data-kmh="30">30 km/h</button>
-          <button class="btn-threshold" data-kmh="35">35 km/h</button>
-          <button class="btn-threshold" data-kmh="40">40 km/h</button>
-          <button class="btn-threshold" data-kmh="50">50 km/h</button>
+        <div class="js-speed-settings" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+          <span class="ctrl-label">再生閾値</span>
+          <div class="threshold-btns">
+            <button class="btn-threshold" data-kmh="30">30 km/h</button>
+            <button class="btn-threshold" data-kmh="35">35 km/h</button>
+            <button class="btn-threshold" data-kmh="40">40 km/h</button>
+            <button class="btn-threshold" data-kmh="50">50 km/h</button>
+          </div>
         </div>
         <button class="btn-interval js-interval-toggle">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
@@ -1221,6 +1303,10 @@
         </div>
       </div>
       <div class="btn-row">
+        <button class="btn-secondary js-calendar-open">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          カレンダー
+        </button>
         <button class="btn-video-change js-video-change">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="7" width="20" height="15" rx="2"/><path d="M16 3l-4 4-4-4"/></svg>
           動画を変更
@@ -1262,10 +1348,10 @@
     </div>
 
     <div class="hud hud-summary hud-panel">
-      <div class="hud-summary-streak">
+      <button class="hud-summary-streak js-calendar-open" id="calendarOpenBtn" type="button" aria-label="カレンダーを開く" title="走行カレンダーを開く">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c0 6-5 7-5 12a5 5 0 0 0 10 0c0-2-1-3-2-4 3 0 5-3 5-6-2 0-4 1-5-2-1-1-2-1-3 0z"/></svg>
         <span id="hudStreak">—</span>
-      </div>
+      </button>
       <div class="hud-summary-divider"></div>
       <div class="hud-summary-item">今日 <strong id="hudToday">0:00</strong></div>
       <div class="hud-summary-item">平均 <strong id="hudAvg">—</strong> km/h</div>
@@ -1317,7 +1403,7 @@
           <div class="interval-progress-fill js-interval-fill" style="width:0%"></div>
         </div>
       </div>
-      <div class="hud-threshold hud-panel">
+      <div class="hud-threshold hud-panel js-speed-settings">
         <button class="btn-threshold" data-kmh="30">30</button>
         <button class="btn-threshold" data-kmh="35">35</button>
         <button class="btn-threshold" data-kmh="40">40</button>
@@ -1397,7 +1483,7 @@
       </div>
 
       <!-- Threshold -->
-      <div>
+      <div class="js-speed-settings">
         <div class="ctrl-label" style="margin-bottom:8px">再生閾値</div>
         <div class="threshold-btns" style="flex-wrap:wrap">
           <button class="btn-threshold" data-kmh="30">30 km/h</button>
@@ -1456,33 +1542,29 @@
 
   </main>
 
-  <!-- Ride calendar -->
-  <div class="calendar-section" id="calendarSection">
-    <div class="calendar-header-row">
-      <div class="calendar-streak" id="calendarStreak"></div>
-      <div class="calendar-nav">
-        <button class="calendar-nav-btn" id="calPrev">&#8249;</button>
-        <span class="calendar-month-label" id="calMonthLabel"></span>
-        <button class="calendar-nav-btn" id="calNext">&#8250;</button>
+  <!-- Calendar modal -->
+  <div class="modal-backdrop hidden" id="calendarModal">
+    <div class="modal calendar-modal">
+      <div class="calendar-section" id="calendarSection">
+        <div class="calendar-header-row">
+          <div class="calendar-streak" id="calendarStreak"></div>
+          <div class="calendar-nav">
+            <button class="calendar-nav-btn" id="calPrev">&#8249;</button>
+            <span class="calendar-month-label" id="calMonthLabel"></span>
+            <button class="calendar-nav-btn" id="calNext">&#8250;</button>
+          </div>
+        </div>
+        <div class="calendar-grid" id="calendarGrid"></div>
       </div>
-    </div>
-    <div class="calendar-grid" id="calendarGrid"></div>
-  </div>
-
-  <!-- Video history -->
-  <div class="history-section" id="historySection">
-    <div class="history-header">
-      <span class="history-label">動画履歴</span>
-      <button class="history-clear" id="historyClearBtn">クリア</button>
-    </div>
-    <div class="history-list" id="historyList">
-      <span class="history-empty">履歴はありません</span>
+      <div class="modal-actions" style="padding: 0 24px 24px;">
+        <button class="btn-secondary" id="calendarModalClose">閉じる</button>
+      </div>
     </div>
   </div>
 
   <!-- Video change modal -->
   <div class="modal-backdrop hidden" id="videoModal">
-    <div class="modal">
+    <div class="modal video-modal">
       <div class="modal-title">動画を変更</div>
       <div class="modal-input-row">
         <input
@@ -1492,6 +1574,16 @@
           placeholder="YouTube URL または動画ID を入力"
           autocomplete="off"
         />
+      </div>
+      <div class="modal-section-divider"></div>
+      <div class="history-section" id="historySection">
+        <div class="history-header">
+          <span class="history-label">動画履歴</span>
+          <button class="history-clear" id="historyClearBtn">クリア</button>
+        </div>
+        <div class="history-list" id="historyList">
+          <span class="history-empty">履歴はありません</span>
+        </div>
       </div>
       <div class="modal-actions">
         <button class="btn-secondary" id="videoModalClose">キャンセル</button>
@@ -1507,7 +1599,7 @@
   <script>
     /* ── Constants ── */
     const PLAYLIST_ID    = 'PL1s89zMwwA_0KHFlD_PL5qVDptDaaC9Yh'
-    const FIRST_VIDEO    = 'kXpOEzNZ8hQ'
+    const FIRST_VIDEO    = '_gyultVTesk'
     const HYST              = 1.0   // hysteresis ±1 km/h
     const LS_HISTORY_KEY    = 'runtube_video_history'
     const HISTORY_MAX       = 20
@@ -1560,7 +1652,10 @@
         </button>
       `).join('')
       list.querySelectorAll('.history-item').forEach(btn => {
-        btn.addEventListener('click', () => loadVideo(btn.dataset.id))
+        btn.addEventListener('click', () => {
+          closeVideoModal()
+          loadVideo(btn.dataset.id)
+        })
       })
     }
 
@@ -1846,13 +1941,13 @@
     /* ── Interval mode ── */
     // フェーズ定義: name, durationSec, targetKmh, type
     const INTERVAL_PHASES = [
-      { name: 'ウォームアップ', durationSec: 3 * 60, targetKmh: 30, type: 'warmup'   },
-      { name: '高負荷',         durationSec: 2 * 60, targetKmh: 40, type: 'hard'     },
-      { name: '休憩',           durationSec: 1 * 60, targetKmh: 30, type: 'rest'     },
-      { name: '高負荷',         durationSec: 2 * 60, targetKmh: 45, type: 'hard'     },
-      { name: '休憩',           durationSec: 1 * 60, targetKmh: 30, type: 'rest'     },
-      { name: '高負荷',         durationSec: 2 * 60, targetKmh: 50, type: 'hard'     },
-      { name: 'クールダウン',   durationSec: 2 * 60, targetKmh: 30, type: 'cooldown' },
+      { name: 'ウォームアップ', durationSec: 1 * 60, targetKmh: 25, type: 'warmup'   },
+      { name: '高負荷',         durationSec: 1 * 60, targetKmh: 35, type: 'hard'     },
+      { name: '休憩',           durationSec: 1 * 60, targetKmh: 25, type: 'rest'     },
+      { name: '高負荷',         durationSec: 1 * 60, targetKmh: 35, type: 'hard'     },
+      { name: '休憩',           durationSec: 1 * 60, targetKmh: 25, type: 'rest'     },
+      { name: '高負荷',         durationSec: 1 * 60, targetKmh: 35, type: 'hard'     },
+      { name: 'クールダウン',   durationSec: 1 * 60, targetKmh: 30, type: 'cooldown' },
     ]
 
     let rideSecTimer   = null   // 走行秒数カウント用インターバル
@@ -1865,7 +1960,6 @@
     let intervalTimer        = null
     let intervalSpeedSamples = []  // 走行中に収集した速度サンプル（このセッション分）
     let intervalBasePhases   = null // 最適化後のフェーズ定義（null=デフォルト使用）
-
     /* ── DOM helpers (supports duplicate elements in mobile/sidebar) ── */
     const $all = s => [...document.querySelectorAll(s)]
     const $     = s => document.querySelector(s)
@@ -1991,11 +2085,15 @@
       return intervalBasePhases || INTERVAL_PHASES
     }
 
-    function startInterval() {
-      // プロファイルから最適化フェーズを構築
-      const baseThresh = optimizedBaseThreshold()
-      intervalBasePhases = baseThresh !== null ? buildOptimizedPhases(baseThresh) : null
+    function updateSpeedSettingsVisibility() {
+      $all('.js-speed-settings').forEach(el => {
+        el.classList.toggle('ui-hidden', intervalActive)
+      })
+    }
 
+    function startInterval() {
+      // Auto は固定メニューで実行する
+      intervalBasePhases = null
       intervalActive       = true
       intervalPhaseIdx     = 0
       intervalPhaseElapsed = 0
@@ -2004,6 +2102,7 @@
       applyIntervalPhase()
       intervalToggleBtns.forEach(b => b.classList.add('active'))
       intervalBanners.forEach(b => b.classList.add('visible'))
+      updateSpeedSettingsVisibility()
       threshBtns.forEach(b => { b.disabled = true; b.classList.remove('selected') })
       intervalTimer = setInterval(tickInterval, 1000)
 
@@ -2024,11 +2123,13 @@
       if (intervalTimer) { clearInterval(intervalTimer); intervalTimer = null }
       intervalToggleBtns.forEach(b => b.classList.remove('active'))
       intervalBanners.forEach(b => b.classList.remove('visible'))
+      updateSpeedSettingsVisibility()
       threshBtns.forEach(b => { b.disabled = false })
       // デフォルト閾値に戻す
       thresholdKmh = 30
       threshBtns.forEach(b => b.classList.toggle('selected', Number(b.dataset.kmh) === 30))
       updateIntervalStartOverlay()
+      if (btConnected && currentSpeed !== null) evaluateSpeed(currentSpeed)
     }
 
     function applyIntervalPhase() {
@@ -2039,8 +2140,30 @@
       if (btConnected && !isRiding) {
         overlaySub.textContent = `${thresholdKmh} km/h 以上で動画が再生されます`
       }
+      if (btConnected && currentSpeed !== null) evaluateSpeed(currentSpeed)
       // フェーズ切り替え演出（最初のフェーズも含む）
       showPhaseFlash(phase)
+    }
+
+    function hideCountdownFlash() {
+      const el = document.getElementById('phaseFlash')
+      if (!el || !el.classList.contains('countdown')) return
+      el.classList.add('hidden')
+      el.classList.remove('countdown')
+    }
+
+    function showCountdownFlash(remaining, targetKmh) {
+      const el      = document.getElementById('phaseFlash')
+      const nameEl  = document.getElementById('phaseFlashName')
+      const speedEl = document.getElementById('phaseFlashSpeed')
+      if (!el) return
+
+      el.classList.remove('hidden')
+      el.classList.add('countdown')
+      el.style.animation = 'none'
+      nameEl.textContent = '高負荷まで'
+      speedEl.className = 'phase-flash-speed countdown'
+      speedEl.innerHTML = `<span class="phase-flash-count">${remaining}</span><span class="phase-flash-speed-caption">秒後に ${targetKmh} km/h</span>`
     }
 
     function showPhaseFlash(phase) {
@@ -2051,6 +2174,7 @@
 
       // リセットしてアニメーション再起動
       el.classList.add('hidden')
+      el.classList.remove('countdown')
       el.style.animation = 'none'
       nameEl.textContent  = phase.name
       speedEl.textContent = `${phase.targetKmh} km/h`
@@ -2093,12 +2217,14 @@
         applyIntervalPhase()
       } else {
         updateIntervalUI()
+        if (btConnected && currentSpeed !== null) evaluateSpeed(currentSpeed)
       }
     }
 
     function updateIntervalUI() {
       const phases   = currentPhases()
       const phase    = phases[intervalPhaseIdx]
+      const nextPhase = phases[intervalPhaseIdx + 1]
       const remain   = phase.durationSec - intervalPhaseElapsed
       const progress = intervalPhaseElapsed / phase.durationSec * 100
       const mm = String(Math.floor(remain / 60)).padStart(1, '0')
@@ -2117,7 +2243,16 @@
       })
       intervalTimerEls.forEach(el => el.textContent = `${mm}:${ss}`)
       intervalRoundEls.forEach(el => el.textContent = roundText)
-      intervalTargetEls.forEach(el => el.textContent = `目標 ${phase.targetKmh} km/h`)
+      const showCountdown = phase.type !== 'hard' && nextPhase?.type === 'hard' && remain > 0 && remain <= 3
+      intervalTargetEls.forEach(el => {
+        if (showCountdown) {
+          el.innerHTML = `<span class="interval-target-countdown">${remain}秒後に</span><span class="interval-target-speed">${nextPhase.targetKmh} km/h</span>`
+          return
+        }
+        el.textContent = `目標 ${phase.targetKmh} km/h`
+      })
+      if (showCountdown) showCountdownFlash(remain, nextPhase.targetKmh)
+      else hideCountdownFlash()
       intervalFillEls.forEach(el => {
         el.style.width = `${progress}%`
         // フェーズ色をバーに反映
@@ -2142,7 +2277,7 @@
       const avg        = sessions.reduce((s, x) => s + x.avg, 0) / sessions.length
       const optimized  = Math.min(48, Math.max(25, Math.round(avg * 0.80)))
       const count      = sessions.length
-      const label      = `⚡ 最適化済み ${optimized} km/h〜（${count}回分）`
+      const label      = `⚡ 走行履歴の目安 ${optimized} km/h〜（${count}回分）`
       hintEls.forEach(el => {
         el.innerHTML = `<span class="profile-hint-text">${label}</span><button class="profile-hint-reset js-profile-reset">リセット</button>`
       })
@@ -2391,8 +2526,20 @@
     const videoUrlInput = document.getElementById('videoUrlInput')
     const videoModalClose = document.getElementById('videoModalClose')
     const videoModalApply = document.getElementById('videoModalApply')
+    const calendarModal = document.getElementById('calendarModal')
+    const calendarModalClose = document.getElementById('calendarModalClose')
+
+    function openCalendarModal() {
+      renderCalendar()
+      calendarModal.classList.remove('hidden')
+    }
+
+    function closeCalendarModal() {
+      calendarModal.classList.add('hidden')
+    }
 
     function openVideoModal() {
+      renderHistory()
       videoUrlInput.value = ''
       videoModal.classList.remove('hidden')
       videoUrlInput.focus()
@@ -2419,6 +2566,9 @@
     videoModalApply.addEventListener('click', applyVideoUrl)
     videoUrlInput.addEventListener('keydown', e => { if (e.key === 'Enter') applyVideoUrl() })
     videoModal.addEventListener('click', e => { if (e.target === videoModal) closeVideoModal() })
+    $all('.js-calendar-open').forEach(el => el.addEventListener('click', openCalendarModal))
+    calendarModalClose.addEventListener('click', closeCalendarModal)
+    calendarModal.addEventListener('click', e => { if (e.target === calendarModal) closeCalendarModal() })
 
     document.getElementById('historyClearBtn').addEventListener('click', () => {
       saveHistory([])
@@ -2444,6 +2594,7 @@
     renderHistory()
     updateProfileHint()
     renderCalendar()
+    updateSpeedSettingsVisibility()
 
     /* ── Half-circle Speed Gauge — factory ── */
     function makeGauge(ids, W, H) {
@@ -2546,7 +2697,7 @@
     function syncHudSummary() {
       const streak = calcStreak()
       const streakEl = document.getElementById('hudStreak')
-      if (streakEl) streakEl.textContent = streak > 0 ? `${streak}日連続` : '—'
+      if (streakEl) streakEl.textContent = streak > 0 ? `${streak}日連続` : 'カレンダー'
 
       const entry = normalizeEntry(loadRideLog()[todayKey()] || 0)
       const todayEl = document.getElementById('hudToday')
