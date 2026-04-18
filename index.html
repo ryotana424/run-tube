@@ -2,7 +2,17 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="description" content="エアロバイクの速度に合わせて YouTube を自動再生する RunTube" />
+  <meta name="theme-color" content="#b8f255" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="RunTube" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="application-name" content="RunTube" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="icon" href="./icons/icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="./icons/icon-maskable.svg" />
   <title>RunTube</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -38,6 +48,11 @@
 
       --font-ui:    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
       --font-mono:  'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+      --safe-top:    env(safe-area-inset-top, 0px);
+      --safe-right:  env(safe-area-inset-right, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --safe-left:   env(safe-area-inset-left, 0px);
     }
 
     body {
@@ -51,6 +66,7 @@
       display: flex;
       flex-direction: column;
       letter-spacing: -0.005em;
+      overscroll-behavior: none;
     }
 
     /* ── Logo (in sidebar) ── */
@@ -85,6 +101,27 @@
       letter-spacing: 0.02em;
     }
 
+    .conn-meta-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .conn-inline-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      min-width: 0;
+    }
+
+    .conn-inline-label {
+      font-size: .72rem;
+      font-weight: 600;
+      color: var(--text-dim);
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+    }
+
     /* ── Main ── */
     main {
       height: 100dvh;
@@ -92,7 +129,11 @@
       display: flex;
       flex-direction: column;
       gap: 12px;
-      padding: 12px 16px;
+      padding:
+        calc(12px + var(--safe-top))
+        calc(16px + var(--safe-right))
+        calc(12px + var(--safe-bottom))
+        calc(16px + var(--safe-left));
       width: 100%;
     }
 
@@ -357,6 +398,31 @@
       border: 1px solid oklch(0.82 0.17 135 / 0.3);
     }
 
+    .btn-install {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      background: oklch(0.82 0.17 135 / 0.12);
+      color: var(--accent);
+      border: 1px solid oklch(0.82 0.17 135 / 0.24);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: .68rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      line-height: 1;
+    }
+
+    .btn-install.visible {
+      display: inline-flex;
+    }
+
+    .btn-install svg {
+      flex-shrink: 0;
+    }
+
     .btn-last .last-name {
       max-width: 160px;
       overflow: hidden;
@@ -430,7 +496,8 @@
 
       /* Top-left: brand */
       .hud-brand {
-        top: 24px; left: 28px;
+        top: calc(24px + var(--safe-top));
+        left: calc(28px + var(--safe-left));
         display: flex; align-items: center; gap: 12px;
       }
       .hud-brand .hud-logo {
@@ -445,11 +512,16 @@
       .hud-brand .hud-sub {
         font-size: .68rem; color: var(--text-dim); margin-top: 2px;
       }
+      .hud-brand .btn-install {
+        padding: 5px 9px;
+        font-size: .62rem;
+      }
       .hud-brand .ride-badge { margin-left: 4px; }
 
       /* Top-right: summary */
       .hud-summary {
-        top: 24px; right: 28px;
+        top: calc(24px + var(--safe-top));
+        right: calc(28px + var(--safe-right));
         display: flex; align-items: center; gap: 20px;
         padding: 10px 18px;
       }
@@ -477,7 +549,8 @@
 
       /* Bottom-left: gauge + bare metrics */
       .hud-gauge-panel {
-        bottom: 28px; left: 28px;
+        bottom: calc(28px + var(--safe-bottom));
+        left: calc(28px + var(--safe-left));
         padding: 20px 24px 24px;
         border-radius: 20px;
         display: flex; align-items: flex-end; gap: 24px;
@@ -517,7 +590,8 @@
 
       /* Bottom-right: controls stack */
       .hud-controls {
-        bottom: 28px; right: 28px;
+        bottom: calc(28px + var(--safe-bottom));
+        right: calc(28px + var(--safe-right));
         display: flex; flex-direction: column; gap: 10px; align-items: flex-end;
       }
       .hud-controls .interval-banner {
@@ -556,8 +630,8 @@
 
     @media (min-width: 768px) and (max-width: 1366px) {
       .hud-gauge-panel {
-        bottom: 16px;
-        left: 16px;
+        bottom: calc(16px + var(--safe-bottom));
+        left: calc(16px + var(--safe-left));
         padding: 10px 14px;
         border-radius: 18px;
         flex-direction: row;
@@ -632,12 +706,58 @@
     }
 
     @media (max-width: 600px) {
-      main   { padding: 10px 12px 12px; gap: 8px; }
+      main   {
+        padding:
+          calc(10px + var(--safe-top))
+          calc(12px + var(--safe-right))
+          calc(12px + var(--safe-bottom))
+          calc(12px + var(--safe-left));
+        gap: 8px;
+      }
       header { padding: 10px 14px; }
       .stat-value { font-size: 1.3rem; }
       .controls-row { gap: 6px; }
       .btn-threshold { padding: 6px 12px; font-size: .8rem; }
       button { padding: 9px 14px; font-size: .82rem; }
+    }
+
+    @media (display-mode: standalone) {
+      body {
+        background:
+          radial-gradient(circle at top, oklch(0.22 0.04 135 / 0.16), transparent 34%),
+          var(--bg);
+      }
+    }
+
+    .mobile-statusbar {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 12;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      background: oklch(0.1 0.01 250 / 0.52);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+    }
+
+    .mobile-statusbar .btn-install {
+      padding: 5px 8px;
+      font-size: .6rem;
+    }
+
+    .mobile-statusbar .conn-inline-label {
+      font-size: .68rem;
+    }
+
+    @media (min-width: 768px) {
+      .mobile-statusbar {
+        display: none;
+      }
     }
 
     /* ── Video change modal ── */
@@ -1237,6 +1357,16 @@
   <div class="video-area">
     <!-- Player -->
     <div class="player-wrap">
+      <div class="mobile-statusbar">
+        <div class="conn-inline-status">
+          <div class="dot js-conn-dot"></div>
+          <span class="conn-inline-label js-conn-label-mirror">未接続</span>
+        </div>
+        <button class="btn-install js-install-app" type="button" aria-label="PWA をインストール" title="PWA をインストール">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+          PWA
+        </button>
+      </div>
       <div id="yt-player"></div>
       <div class="overlay" id="overlay">
         <div class="overlay-icon" id="overlayIcon">🚴</div>
@@ -1328,7 +1458,7 @@
           切断
         </button>
       </div>
-      <p class="hint">Chrome / Edge 系ブラウザ + HTTPS 環境が必要です（iOS Safari は非対応）</p>
+      <p class="hint">Android の Chrome / Edge + HTTPS ならホーム画面に追加できます。iOS Safari は Bluetooth 非対応です。</p>
     </div>
   </div>
 
@@ -1339,7 +1469,13 @@
       </div>
       <div>
         <div class="hud-name">RunTube</div>
-        <div class="hud-sub"><span id="hudConnLabel">未接続</span></div>
+        <div class="hud-sub conn-meta-row">
+          <span id="hudConnLabel" class="js-conn-label-mirror">未接続</span>
+          <button class="btn-install js-install-app" type="button" aria-label="PWA をインストール" title="PWA をインストール">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+            PWA
+          </button>
+        </div>
       </div>
       <div class="ride-badge disconnected js-ride-badge">
         <span class="js-ride-badge-icon">—</span>
@@ -1440,7 +1576,13 @@
         RunTube
         <div class="dot" id="connDot" style="margin-left:auto"></div>
       </div>
-      <span id="connLabel" style="margin-top:-8px">未接続</span>
+      <div class="conn-meta-row" style="margin-top:-8px">
+        <span id="connLabel">未接続</span>
+        <button class="btn-install js-install-app" type="button" aria-label="PWA をインストール" title="PWA をインストール">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+          PWA
+        </button>
+      </div>
 
       <!-- Hero: half-circle speed gauge -->
       <div class="gauge-card" id="gaugeCard">
@@ -1537,7 +1679,7 @@
         </button>
       </div>
 
-      <p class="hint">Chrome / Edge 系ブラウザ + HTTPS 環境が必要です（iOS Safari は非対応）</p>
+      <p class="hint">Android の Chrome / Edge + HTTPS ならホーム画面に追加できます。iOS Safari は Bluetooth 非対応です。</p>
     </aside>
 
   </main>
@@ -1621,6 +1763,23 @@
 
     /* ── localStorage ── */
     const LS_KEY = 'runtube_last_device'
+    const displayModeMedia = window.matchMedia('(display-mode: standalone)')
+    let deferredInstallPrompt = null
+
+    function isStandaloneMode() {
+      return displayModeMedia.matches || window.navigator.standalone === true
+    }
+
+    function isImmersiveMode() {
+      return isStandaloneMode() || window.matchMedia('(display-mode: fullscreen)').matches
+    }
+
+    function registerServiceWorker() {
+      if (!('serviceWorker' in navigator) || !window.isSecureContext) return
+      navigator.serviceWorker.register('./service-worker.js').catch(() => {})
+    }
+
+    registerServiceWorker()
 
     /* ── Video history ── */
     function loadHistory() {
@@ -1971,6 +2130,8 @@
     const connDot      = document.getElementById('connDot')
     const connLabel    = document.getElementById('connLabel')
     const playerWrap   = $('.player-wrap')
+    const connDots     = $all('.js-conn-dot')
+    const connMirrors  = $all('.js-conn-label-mirror')
 
     // Multi-instance elements (mobile + sidebar)
     const speedVals      = $all('.js-speed')
@@ -1991,6 +2152,49 @@
     const intervalRoundEls   = $all('.js-interval-round')
     const intervalTargetEls  = $all('.js-interval-target')
     const intervalFillEls    = $all('.js-interval-fill')
+    const installBtns        = $all('.js-install-app')
+    let fullscreenArmed      = false
+
+    function updateInstallButtons() {
+      const visible = !isImmersiveMode() && !!deferredInstallPrompt
+      installBtns.forEach(btn => btn.classList.toggle('visible', visible))
+    }
+
+    function syncConnMirrors() {
+      const text = connLabel?.textContent || '未接続'
+      connMirrors.forEach(el => { el.textContent = text })
+
+      const className = connDot?.className || 'dot'
+      connDots.forEach(el => { el.className = className })
+    }
+
+    async function promptInstall() {
+      if (!deferredInstallPrompt) return
+      const prompt = deferredInstallPrompt
+      deferredInstallPrompt = null
+      updateInstallButtons()
+      prompt.prompt()
+      try { await prompt.userChoice } catch (_) {}
+    }
+
+    async function requestInstalledFullscreen() {
+      if (!isImmersiveMode()) return
+      if (!document.fullscreenEnabled || document.fullscreenElement) return
+      try {
+        await document.documentElement.requestFullscreen({ navigationUI: 'hide' })
+      } catch (_) {
+        try { await document.documentElement.requestFullscreen() } catch (_) {}
+      }
+    }
+
+    function armInstalledFullscreen() {
+      if (fullscreenArmed || !isImmersiveMode()) return
+      fullscreenArmed = true
+
+      const tryEnter = () => requestInstalledFullscreen()
+      window.addEventListener('pointerdown', tryEnter, { once: true, passive: true })
+      window.addEventListener('keydown', tryEnter, { once: true })
+    }
 
     /* ── Threshold preset buttons ── */
     threshBtns.forEach(btn => {
@@ -2011,6 +2215,25 @@
         else startInterval()
       })
     })
+
+    installBtns.forEach(btn => btn.addEventListener('click', promptInstall))
+
+    window.addEventListener('beforeinstallprompt', (event) => {
+      event.preventDefault()
+      deferredInstallPrompt = event
+      updateInstallButtons()
+    })
+
+    window.addEventListener('appinstalled', () => {
+      deferredInstallPrompt = null
+      updateInstallButtons()
+    })
+
+    if (displayModeMedia.addEventListener) displayModeMedia.addEventListener('change', updateInstallButtons)
+    else if (displayModeMedia.addListener) displayModeMedia.addListener(updateInstallButtons)
+    document.addEventListener('fullscreenchange', updateInstallButtons)
+    new MutationObserver(syncConnMirrors).observe(connLabel, { childList: true, characterData: true, subtree: true })
+    new MutationObserver(syncConnMirrors).observe(connDot, { attributes: true, attributeFilter: ['class'] })
 
     /* ── URL param: ?v=VIDEO_ID ── */
     function getInitialVideoId() {
@@ -2595,6 +2818,9 @@
     updateProfileHint()
     renderCalendar()
     updateSpeedSettingsVisibility()
+    updateInstallButtons()
+    syncConnMirrors()
+    armInstalledFullscreen()
 
     /* ── Half-circle Speed Gauge — factory ── */
     function makeGauge(ids, W, H) {
@@ -2713,6 +2939,7 @@
       if (hudConn) hudConn.textContent = connLabel.textContent || '未接続'
     }
     syncHudSummary()
+    syncConnMirrors()
     setInterval(syncHudSummary, 1000)
     new MutationObserver(syncHudSummary).observe(connLabel, { childList: true, characterData: true, subtree: true })
   </script>

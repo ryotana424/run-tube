@@ -1,0 +1,48 @@
+{
+  "name": "RunTube",
+  "short_name": "RunTube",
+  "description": "エアロバイクの速度に合わせて YouTube を自動再生する Android 向け PWA",
+  "start_url": "./",
+  "scope": "./",
+  "display": "fullscreen",
+  "display_override": [
+    "fullscreen",
+    "standalone",
+    "minimal-ui"
+  ],
+  "background_color": "#171a1f",
+  "theme_color": "#b8f255",
+  "lang": "ja",
+  "icons": [
+    {
+      "src": "./icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "categories": [
+    "health",
+    "fitness",
+    "sports",
+    "video"
+  ],
+  "shortcuts": [
+    {
+      "name": "RunTube を開く",
+      "short_name": "起動",
+      "url": "./"
+    },
+    {
+      "name": "診断ページを開く",
+      "short_name": "診断",
+      "url": "./qb_c01s_web_bluetooth_test.html"
+    }
+  ]
+}
