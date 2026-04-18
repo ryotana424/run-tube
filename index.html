@@ -548,6 +548,77 @@
       .video-area::after { z-index: 4; }
     }
 
+    @media (min-width: 768px) and (max-width: 1366px) {
+      .hud-gauge-panel {
+        bottom: 16px;
+        left: 16px;
+        padding: 10px 14px;
+        border-radius: 18px;
+        flex-direction: row;
+        align-items: center;
+        gap: 14px;
+        max-width: min(340px, calc(100vw - 32px));
+        background: oklch(0.08 0.01 250 / 0.38);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+      }
+
+      .hud-gauge-panel .gauge-card {
+        width: 124px;
+        flex: 0 0 auto;
+      }
+
+      .hud-gauge-panel .gauge-svg {
+        width: 124px;
+        height: auto;
+      }
+
+      .hud-gauge-panel .gauge-readout {
+        margin-top: -30px !important;
+      }
+
+      .hud-gauge-panel .gauge-value-num {
+        font-size: 1.7rem !important;
+      }
+
+      .hud-gauge-panel .gauge-label {
+        font-size: .48rem;
+        margin-top: 3px;
+        letter-spacing: 0.1em;
+      }
+
+      .hud-gauge-panel .bare-metrics {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding-bottom: 0;
+        min-width: 0;
+      }
+
+      .hud-gauge-panel .bare-metrics > div {
+        min-width: 0;
+      }
+
+      .hud-gauge-panel .bare-metric-label {
+        font-size: .48rem;
+        margin-bottom: 1px;
+        letter-spacing: 0.12em;
+      }
+
+      .hud-gauge-panel .bare-metric-row {
+        gap: 3px;
+        white-space: nowrap;
+      }
+
+      .hud-gauge-panel .bare-metric-value {
+        font-size: 1.05rem;
+      }
+
+      .hud-gauge-panel .bare-metric-unit {
+        font-size: .48rem;
+      }
+    }
+
     @media (max-width: 767px) {
       .hud { display: none; }
       .calendar-section { display: flex; }
