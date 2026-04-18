@@ -4,53 +4,68 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>RunTube</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
   <style>
-    /* ── Reset & tokens ── */
+    /* ── Reset & tokens (Healthcare-OS refresh) ── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:        #080c14;
-      --surface:   #0e1420;
-      --surface2:  #141b2e;
-      --border:    rgba(255,255,255,.07);
-      --text:      #e8ecf8;
-      --muted:     #6b7394;
-      --accent:    #6c63ff;
-      --accent2:   #a78bfa;
-      --green:     #34d399;
-      --red:       #f87171;
-      --yellow:    #fbbf24;
-      --radius-lg: 20px;
-      --radius-md: 12px;
-      --shadow:    0 8px 40px rgba(0,0,0,.6);
+      --bg:         oklch(0.16 0.008 250);
+      --bg-elev:    oklch(0.19 0.008 250);
+      --surface:    oklch(0.22 0.009 250);
+      --surface2:   oklch(0.26 0.009 250);
+      --border:     oklch(1 0 0 / 0.08);
+      --border2:    oklch(1 0 0 / 0.14);
+      --text:       oklch(0.97 0.005 250);
+      --text-dim:   oklch(0.72 0.01 250);
+      --muted:      oklch(0.55 0.012 250);
+
+      --accent:     oklch(0.82 0.17 135);          /* lime */
+      --accent-soft:oklch(0.82 0.17 135 / 0.18);
+      --accent-ink: oklch(0.25 0.05 135);
+      --accent2:    oklch(0.82 0.17 135);          /* alias */
+
+      --green:      oklch(0.82 0.17 135);
+      --red:        oklch(0.70 0.16 25);
+      --yellow:     oklch(0.82 0.14 85);
+
+      --radius-lg:  20px;
+      --radius-md:  14px;
+      --radius-sm:  10px;
+      --shadow:     0 8px 40px rgba(0,0,0,.5);
+
+      --font-ui:    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      --font-mono:  'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
     }
 
     body {
       background: var(--bg);
       color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      font-family: var(--font-ui);
+      font-feature-settings: 'cv11', 'ss01';
       line-height: 1.5;
       min-height: 100dvh;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
+      letter-spacing: -0.005em;
     }
 
     /* ── Logo (in sidebar) ── */
     .logo {
       display: flex;
       align-items: center;
-      gap: 7px;
-      font-size: .95rem;
-      font-weight: 800;
-      letter-spacing: -.5px;
-      background: linear-gradient(135deg, var(--accent2), var(--accent));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      padding-bottom: 10px;
+      gap: 10px;
+      font-size: .92rem;
+      font-weight: 700;
+      letter-spacing: -.01em;
+      color: var(--text);
+      padding-bottom: 12px;
       border-bottom: 1px solid var(--border);
     }
+    .logo svg { border-radius: 8px; background: var(--accent); padding: 4px; }
 
     .dot {
       width: 8px; height: 8px;
@@ -64,9 +79,10 @@
     .dot.err  { background: var(--red);    box-shadow: 0 0 8px var(--red); }
 
     #connLabel {
-      font-size: .8rem;
+      font-size: .72rem;
       font-weight: 600;
-      color: var(--muted);
+      color: var(--text-dim);
+      letter-spacing: 0.02em;
     }
 
     /* ── Main ── */
@@ -89,7 +105,7 @@
       border-radius: var(--radius-lg);
       overflow: hidden;
       background: #000;
-      box-shadow: var(--shadow);
+      box-shadow: 0 1px 0 var(--border), var(--shadow);
       border: 1px solid var(--border);
     }
 
@@ -127,9 +143,9 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 10px;
-      background: rgba(8,12,20,.82);
-      backdrop-filter: blur(6px);
+      gap: 14px;
+      background: oklch(0.1 0.01 250 / 0.82);
+      backdrop-filter: blur(14px);
       transition: opacity .25s;
       z-index: 10;
     }
@@ -139,17 +155,19 @@
     .overlay-icon { font-size: 3.5rem; line-height: 1; }
 
     .overlay-title {
-      font-size: 1.6rem;
-      font-weight: 900;
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
       text-align: center;
-      line-height: 1.2;
+      line-height: 1.25;
     }
 
     .overlay-sub {
-      font-size: .9rem;
-      color: var(--muted);
+      font-size: .82rem;
+      color: var(--text-dim);
       text-align: center;
-      max-width: 320px;
+      max-width: 340px;
+      letter-spacing: 0.005em;
     }
 
     /* ── Stats ── */
@@ -160,47 +178,54 @@
     }
 
     .stat-card {
-      background: var(--surface);
+      background: transparent;
       border: 1px solid var(--border);
       border-radius: var(--radius-md);
-      padding: 10px 14px;
+      padding: 12px 14px;
       display: flex;
       flex-direction: column;
-      gap: 2px;
-      transition: border-color .3s;
+      gap: 4px;
+      transition: border-color .3s, background .3s;
     }
 
-    .stat-card.active { border-color: rgba(108,99,255,.5); }
+    .stat-card.active {
+      border-color: oklch(0.82 0.17 135 / 0.35);
+      background: var(--accent-soft);
+    }
 
     .stat-label {
-      font-size: .7rem;
-      font-weight: 700;
+      font-size: .66rem;
+      font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: .07em;
+      letter-spacing: .14em;
       color: var(--muted);
     }
+    .stat-card.active .stat-label { color: var(--accent); }
 
     .stat-value {
-      font-size: 1.6rem;
-      font-weight: 800;
+      font-size: 1.55rem;
+      font-weight: 700;
       font-variant-numeric: tabular-nums;
+      letter-spacing: -0.02em;
       line-height: 1;
       color: var(--text);
+      font-family: var(--font-mono);
       transition: color .3s;
     }
 
     .stat-unit {
       font-size: .72rem;
-      color: var(--muted);
+      color: var(--text-dim);
       margin-top: 1px;
+      font-weight: 500;
     }
 
-    @keyframes pulse-green {
+    @keyframes pulse-accent {
       0%, 100% { text-shadow: none; }
-      50%       { text-shadow: 0 0 20px rgba(52,211,153,.7); }
+      50%       { text-shadow: 0 0 18px oklch(0.82 0.17 135 / 0.55); }
     }
 
-    .stat-value.riding { color: var(--green); animation: pulse-green 2s ease-in-out infinite; }
+    .stat-value.riding { color: var(--accent); animation: pulse-accent 2s ease-in-out infinite; }
 
     /* ── Controls row ── */
     .controls-row {
@@ -211,10 +236,10 @@
     }
 
     .ctrl-label {
-      font-size: .75rem;
-      font-weight: 700;
+      font-size: .66rem;
+      font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: .07em;
+      letter-spacing: .14em;
       color: var(--muted);
       white-space: nowrap;
     }
@@ -228,44 +253,59 @@
     .btn-threshold {
       appearance: none;
       border: 1px solid var(--border);
-      background: var(--surface2);
-      color: var(--muted);
-      border-radius: var(--radius-md);
+      background: transparent;
+      color: var(--text-dim);
+      border-radius: var(--radius-sm);
       font: inherit;
-      font-size: .85rem;
+      font-family: var(--font-mono);
+      font-size: .82rem;
       font-weight: 700;
-      padding: 8px 16px;
+      padding: 7px 14px;
       cursor: pointer;
       transition: all .15s;
     }
 
-    .btn-threshold:hover { border-color: var(--accent); color: var(--text); }
+    .btn-threshold:hover { border-color: var(--border2); color: var(--text); }
 
     .btn-threshold.selected {
-      background: linear-gradient(135deg, var(--accent), #8b5cf6);
+      background: var(--accent);
       border-color: transparent;
-      color: #fff;
-      box-shadow: 0 3px 14px rgba(108,99,255,.4);
+      color: var(--accent-ink);
+      box-shadow: none;
     }
 
     /* Ride status badge */
     .ride-badge {
-      display: flex;
+      display: inline-flex;
       align-items: center;
-      gap: 6px;
-      padding: 6px 14px;
+      gap: 7px;
+      padding: 5px 11px;
       border-radius: 999px;
-      font-size: .78rem;
+      font-size: .66rem;
       font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
       border: 1px solid transparent;
       white-space: nowrap;
       transition: all .3s;
       margin-left: auto;
     }
 
-    .ride-badge.riding       { background: rgba(52,211,153,.12); border-color: rgba(52,211,153,.3);  color: var(--green); }
-    .ride-badge.stopped      { background: rgba(248,113,113,.12); border-color: rgba(248,113,113,.3); color: var(--red); }
-    .ride-badge.disconnected { background: rgba(107,115,148,.1);  border-color: rgba(107,115,148,.2); color: var(--muted); }
+    .ride-badge.riding {
+      background: var(--accent-soft);
+      border-color: oklch(0.82 0.17 135 / 0.3);
+      color: var(--accent);
+    }
+    .ride-badge.stopped {
+      background: oklch(0.82 0.14 85 / 0.13);
+      border-color: oklch(0.82 0.14 85 / 0.3);
+      color: var(--yellow);
+    }
+    .ride-badge.disconnected {
+      background: var(--surface);
+      border-color: var(--border);
+      color: var(--text-dim);
+    }
 
     /* ── BT buttons ── */
     .btn-row {
@@ -278,30 +318,43 @@
       appearance: none;
       border: none;
       cursor: pointer;
-      border-radius: var(--radius-md);
+      border-radius: var(--radius-sm);
       font: inherit;
-      font-weight: 700;
-      font-size: .875rem;
-      padding: 11px 18px;
+      font-family: var(--font-ui);
+      font-weight: 600;
+      font-size: .82rem;
+      padding: 10px 14px;
       display: flex;
       align-items: center;
       gap: 7px;
-      transition: filter .15s, transform .1s, opacity .2s;
+      letter-spacing: -0.005em;
+      transition: filter .15s, transform .1s, opacity .2s, background .15s, border-color .15s;
     }
 
-    button:hover:not(:disabled)  { filter: brightness(1.15); }
-    button:active:not(:disabled) { transform: scale(.97); }
+    button:hover:not(:disabled)  { filter: brightness(1.08); }
+    button:active:not(:disabled) { transform: scale(.98); }
     button:disabled               { opacity: .4; cursor: not-allowed; }
 
-    .btn-primary   { background: linear-gradient(135deg, var(--accent), #8b5cf6); color: #fff; box-shadow: 0 4px 20px rgba(108,99,255,.35); }
-    .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
-    .btn-danger    { background: rgba(248,113,113,.15); color: var(--red); border: 1px solid rgba(248,113,113,.25); }
+    .btn-primary   {
+      background: var(--accent);
+      color: var(--accent-ink);
+      border: 1px solid transparent;
+    }
+    .btn-secondary {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border2);
+    }
+    .btn-danger    {
+      background: transparent;
+      color: var(--red);
+      border: 1px solid oklch(0.70 0.16 25 / 0.35);
+    }
 
     .btn-last {
-      background: linear-gradient(135deg, #0f4c2a, #1a6b3a);
-      color: var(--green);
-      border: 1px solid rgba(52,211,153,.3);
-      box-shadow: 0 4px 16px rgba(52,211,153,.2);
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid oklch(0.82 0.17 135 / 0.3);
     }
 
     .btn-last .last-name {
@@ -328,32 +381,175 @@
       gap: 12px;
     }
 
-    /* ── Tablet+: side-by-side layout ── */
+    /* ── Tablet+: Variant A — Floating HUD ── */
     @media (min-width: 768px) {
+      body { overflow: hidden; height: 100dvh; }
       main {
-        flex-direction: row;
-        align-items: stretch;
-        gap: 14px;
+        flex-direction: column;
+        gap: 0;
+        padding: 0;
+        height: 100dvh;
+        position: relative;
       }
-      .player-wrap {
+      .video-area {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        padding: 0;
+      }
+      main > .player-wrap { display: none; }
+      .video-area .player-wrap {
         flex: 1;
-        width: auto;
-        min-height: 0;
+        border-radius: 0;
+        border: none;
+        box-shadow: none;
       }
-      .sidebar {
-        width: 180px;
-        flex-shrink: 0;
+      /* vignette */
+      .video-area::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background: radial-gradient(ellipse at center, transparent 38%, oklch(0 0 0 / 0.55) 100%);
+        z-index: 5;
+      }
+      .sidebar { display: none; }
+      .mobile-controls { display: none; }
+      .calendar-section, .history-section { display: none; }
+
+      /* HUD panels */
+      .hud { position: absolute; z-index: 20; pointer-events: none; }
+      .hud > * { pointer-events: auto; }
+
+      .hud-panel {
+        background: oklch(0.1 0.01 250 / 0.55);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+      }
+
+      /* Top-left: brand */
+      .hud-brand {
+        top: 24px; left: 28px;
+        display: flex; align-items: center; gap: 12px;
+      }
+      .hud-brand .hud-logo {
+        width: 30px; height: 30px; border-radius: 9px;
+        background: var(--accent);
+        display: flex; align-items: center; justify-content: center;
+        color: var(--accent-ink);
+      }
+      .hud-brand .hud-name {
+        font-size: .88rem; font-weight: 700; letter-spacing: -0.01em;
+      }
+      .hud-brand .hud-sub {
+        font-size: .68rem; color: var(--text-dim); margin-top: 2px;
+      }
+      .hud-brand .ride-badge { margin-left: 4px; }
+
+      /* Top-right: summary */
+      .hud-summary {
+        top: 24px; right: 28px;
+        display: flex; align-items: center; gap: 20px;
+        padding: 10px 18px;
+      }
+      .hud-summary-streak {
+        display: flex; align-items: center; gap: 6px;
+        font-size: .78rem; font-weight: 700; color: var(--accent);
+      }
+      .hud-summary-divider {
+        width: 1px; height: 20px; background: var(--border);
+      }
+      .hud-summary-item {
+        font-size: .72rem; color: var(--text-dim);
+      }
+      .hud-summary-item strong {
+        color: var(--text); font-weight: 700;
+        font-family: var(--font-mono);
+      }
+
+      /* Bottom-left: gauge + bare metrics */
+      .hud-gauge-panel {
+        bottom: 28px; left: 28px;
+        padding: 20px 24px 24px;
+        border-radius: 20px;
+        display: flex; align-items: flex-end; gap: 24px;
+        overflow: hidden;
+      }
+      .hud-gauge-panel .gauge-card {
         display: flex;
         flex-direction: column;
-        gap: 8px;
-        overflow-y: auto;
-        overflow-x: hidden;
+        align-items: center;
+        padding: 0;
+        background: transparent;
+        border: none;
+        width: 220px;
       }
-      .sidebar .stat-card { padding: 7px 10px; }
-      .sidebar .stat-value { font-size: 1.3rem; }
-      .sidebar button { padding: 8px 10px; font-size: .8rem; }
-      .sidebar .btn-threshold { padding: 6px 8px; font-size: .78rem; }
-      .mobile-controls { display: none; }
+      .hud-gauge-panel .gauge-svg { display: block; overflow: hidden; }
+      .hud-gauge-panel .gauge-readout { margin-top: -50px !important; }
+      .hud-gauge-panel .bare-metrics {
+        display: flex; flex-direction: column; gap: 18px;
+        padding-bottom: 10px;
+      }
+      .bare-metric-label {
+        font-size: .62rem; font-weight: 600; letter-spacing: 0.16em;
+        color: var(--muted); text-transform: uppercase; margin-bottom: 3px;
+      }
+      .bare-metric-row {
+        display: flex; align-items: baseline; gap: 5px;
+      }
+      .bare-metric-value {
+        font-family: var(--font-mono); font-size: 2rem;
+        font-weight: 700; letter-spacing: -0.03em;
+        font-variant-numeric: tabular-nums;
+        color: var(--text); line-height: 0.95;
+      }
+      .bare-metric-unit {
+        font-size: .62rem; color: var(--text-dim); font-weight: 500;
+      }
+
+      /* Bottom-right: controls stack */
+      .hud-controls {
+        bottom: 28px; right: 28px;
+        display: flex; flex-direction: column; gap: 10px; align-items: flex-end;
+      }
+      .hud-controls .interval-banner {
+        min-width: 280px; background: oklch(0.1 0.01 250 / 0.55);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+      }
+      .hud-threshold {
+        display: flex; gap: 6px; padding: 6px;
+      }
+      .hud-threshold .btn-threshold {
+        padding: 6px 12px; font-size: .78rem;
+        border: none; background: transparent;
+      }
+      .hud-threshold .btn-threshold.selected {
+        background: var(--accent); color: var(--accent-ink);
+      }
+      .hud-btn-row {
+        display: flex; gap: 8px;
+      }
+      .hud-btn-row button {
+        font-size: .76rem; padding: 7px 12px;
+        background: oklch(0.1 0.01 250 / 0.55);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+      }
+      .hud-btn-row .btn-danger {
+        background: oklch(0.70 0.16 25 / 0.18);
+      }
+
+      /* overlay sits between video and HUD so HUD stays visible */
+      .overlay { z-index: 6; }
+      .phase-flash { z-index: 7; }
+      .video-area::after { z-index: 4; }
+    }
+
+    @media (max-width: 767px) {
+      .hud { display: none; }
     }
 
     @media (max-width: 600px) {
@@ -441,12 +637,13 @@
     }
 
     .calendar-streak {
-      font-size: .85rem;
-      font-weight: 800;
-      color: var(--yellow);
+      font-size: .72rem;
+      font-weight: 700;
+      color: var(--accent);
       display: flex;
       align-items: center;
-      gap: 5px;
+      gap: 6px;
+      letter-spacing: 0.01em;
     }
 
     .calendar-nav {
@@ -457,25 +654,26 @@
 
     .calendar-nav-btn {
       appearance: none;
-      background: var(--surface2);
+      background: transparent;
       border: 1px solid var(--border);
-      color: var(--text);
+      color: var(--text-dim);
       border-radius: 8px;
-      font-size: 1.1rem;
+      font-size: 1rem;
       line-height: 1;
-      padding: 4px 10px;
+      padding: 3px 9px;
       cursor: pointer;
-      font-weight: 700;
-      transition: background .15s;
+      font-weight: 600;
+      transition: all .15s;
     }
-    .calendar-nav-btn:hover { background: var(--surface); border-color: var(--accent); }
+    .calendar-nav-btn:hover { background: var(--surface); border-color: var(--border2); color: var(--text); }
 
     .calendar-month-label {
-      font-size: .85rem;
-      font-weight: 800;
+      font-size: .78rem;
+      font-weight: 600;
       color: var(--text);
-      min-width: 90px;
+      min-width: 92px;
       text-align: center;
+      letter-spacing: -0.005em;
     }
 
     .calendar-grid {
@@ -497,9 +695,9 @@
 
     .cal-day {
       aspect-ratio: 1;
-      border-radius: 8px;
-      background: var(--surface2);
-      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--surface);
+      border: 1px solid transparent;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -511,35 +709,40 @@
     .cal-day.empty { background: transparent; border-color: transparent; }
     .cal-day.today { border-color: var(--accent); }
 
-    .cal-day.has-ride {
-      border-color: rgba(52,211,153,.5);
-    }
-    .cal-day.has-ride.lvl1 { background: rgba(52,211,153,.10); }
-    .cal-day.has-ride.lvl2 { background: rgba(52,211,153,.20); }
-    .cal-day.has-ride.lvl3 { background: rgba(52,211,153,.35); }
-    .cal-day.has-ride.lvl4 { background: rgba(52,211,153,.55); }
+    .cal-day.has-ride { border-color: transparent; }
+    .cal-day.has-ride.lvl1 { background: oklch(0.82 0.17 135 / 0.18); }
+    .cal-day.has-ride.lvl2 { background: oklch(0.82 0.17 135 / 0.38); }
+    .cal-day.has-ride.lvl3 { background: oklch(0.82 0.17 135 / 0.62); }
+    .cal-day.has-ride.lvl4 { background: oklch(0.82 0.17 135 / 0.95); }
 
     .cal-day-num {
-      font-size: .75rem;
-      font-weight: 700;
-      color: var(--muted);
+      font-size: .7rem;
+      font-weight: 600;
+      color: var(--text-dim);
       line-height: 1;
+      font-family: var(--font-mono);
     }
-    .cal-day.today .cal-day-num { color: var(--accent2); }
+    .cal-day.today .cal-day-num { color: var(--accent); }
     .cal-day.has-ride .cal-day-num { color: var(--text); }
+    .cal-day.has-ride.lvl3 .cal-day-num,
+    .cal-day.has-ride.lvl4 .cal-day-num { color: var(--accent-ink); }
 
     .cal-day-time {
-      font-size: .58rem;
+      font-size: .55rem;
       font-weight: 700;
-      color: var(--green);
+      color: var(--accent);
       line-height: 1;
+      font-family: var(--font-mono);
     }
+    .cal-day.has-ride.lvl3 .cal-day-time,
+    .cal-day.has-ride.lvl4 .cal-day-time { color: var(--accent-ink); }
 
     .cal-day-avg {
-      font-size: .55rem;
+      font-size: .52rem;
       font-weight: 600;
-      color: var(--accent2);
+      color: var(--text-dim);
       line-height: 1;
+      font-family: var(--font-mono);
     }
     .cal-day-avg::after { content: 'k'; }
 
@@ -597,20 +800,24 @@
     .history-item {
       display: flex;
       align-items: center;
-      gap: 6px;
-      background: var(--surface2);
+      gap: 8px;
+      background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      padding: 6px 10px;
+      border-radius: var(--radius-sm);
+      padding: 6px 10px 6px 6px;
       cursor: pointer;
-      font-size: .8rem;
-      font-weight: 600;
+      font-size: .78rem;
+      font-weight: 500;
       color: var(--text);
       transition: border-color .15s, background .15s;
-      max-width: 240px;
+      max-width: 260px;
     }
-    .history-item:hover { border-color: var(--accent); background: rgba(108,99,255,.08); }
-    .history-item.current { border-color: rgba(108,99,255,.5); color: var(--accent2); }
+    .history-item:hover { border-color: var(--border2); }
+    .history-item.current {
+      background: var(--accent-soft);
+      border-color: oklch(0.82 0.17 135 / 0.4);
+      color: var(--accent);
+    }
 
     .history-thumb {
       width: 40px;
@@ -635,9 +842,9 @@
     }
 
     .btn-video-change {
-      background: rgba(108,99,255,.12);
-      color: var(--accent2);
-      border: 1px solid rgba(108,99,255,.25);
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border2);
     }
 
     @media (min-width: 768px) {
@@ -647,36 +854,36 @@
     /* ── Interval mode ── */
     .btn-interval {
       appearance: none;
-      border: 1px solid rgba(251,191,36,.3);
-      background: rgba(251,191,36,.1);
-      color: var(--yellow);
-      border-radius: var(--radius-md);
+      border: 1px solid oklch(0.82 0.17 135 / 0.3);
+      background: var(--accent-soft);
+      color: var(--accent);
+      border-radius: var(--radius-sm);
       font: inherit;
-      font-size: .85rem;
-      font-weight: 700;
-      padding: 8px 16px;
+      font-family: var(--font-ui);
+      font-size: .82rem;
+      font-weight: 600;
+      padding: 9px 14px;
       cursor: pointer;
       transition: all .15s;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 7px;
     }
-    .btn-interval:hover { background: rgba(251,191,36,.18); border-color: var(--yellow); }
+    .btn-interval:hover { filter: brightness(1.1); }
     .btn-interval.active {
-      background: linear-gradient(135deg, #d97706, #f59e0b);
+      background: var(--accent);
       border-color: transparent;
-      color: #000;
-      box-shadow: 0 3px 14px rgba(251,191,36,.4);
+      color: var(--accent-ink);
     }
 
     .interval-banner {
       display: none;
       flex-direction: column;
-      gap: 6px;
-      background: var(--surface2);
+      gap: 8px;
+      background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius-md);
-      padding: 10px 14px;
+      padding: 12px 14px;
     }
     .interval-banner.visible { display: flex; }
 
@@ -688,33 +895,35 @@
     }
 
     .interval-phase-label {
-      font-size: .78rem;
-      font-weight: 800;
+      font-size: .66rem;
+      font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: .06em;
+      letter-spacing: .14em;
     }
-    .interval-phase-label.warmup  { color: var(--green); }
-    .interval-phase-label.hard    { color: var(--red); }
-    .interval-phase-label.rest    { color: #60a5fa; }
-    .interval-phase-label.cooldown{ color: var(--accent2); }
+    .interval-phase-label.warmup  { color: oklch(0.78 0.13 160); }
+    .interval-phase-label.hard    { color: oklch(0.72 0.17 25); }
+    .interval-phase-label.rest    { color: oklch(0.75 0.13 220); }
+    .interval-phase-label.cooldown{ color: oklch(0.73 0.12 280); }
 
     .interval-timer {
-      font-size: 1.1rem;
-      font-weight: 900;
+      font-size: 1rem;
+      font-weight: 700;
       font-variant-numeric: tabular-nums;
+      letter-spacing: -0.02em;
       color: var(--text);
+      font-family: var(--font-mono);
     }
 
     .interval-round {
-      font-size: .72rem;
+      font-size: .68rem;
       color: var(--muted);
       font-weight: 600;
     }
 
     .interval-target {
       font-size: .72rem;
-      font-weight: 700;
-      color: var(--muted);
+      font-weight: 500;
+      color: var(--text-dim);
     }
 
     .interval-progress-track {
@@ -803,10 +1012,70 @@
       line-height: 1;
       text-shadow: 0 4px 40px currentColor;
     }
-    .phase-flash-speed.warmup   { color: var(--green); }
-    .phase-flash-speed.hard     { color: var(--red); }
-    .phase-flash-speed.rest     { color: #60a5fa; }
-    .phase-flash-speed.cooldown { color: var(--accent2); }
+    .phase-flash-speed.warmup   { color: oklch(0.78 0.13 160); }
+    .phase-flash-speed.hard     { color: oklch(0.72 0.17 25); }
+    .phase-flash-speed.rest     { color: oklch(0.75 0.13 220); }
+    .phase-flash-speed.cooldown { color: oklch(0.73 0.12 280); }
+
+    /* ── Half-circle Speed Gauge (Variant B hero) ── */
+    .gauge-card {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      padding: 18px 12px 12px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: var(--surface);
+    }
+    @media (min-width: 768px) {
+      .gauge-card { display: flex; }
+    }
+    .gauge-svg { overflow: visible; }
+    .gauge-track    { fill: none; stroke: var(--border); stroke-width: 10; stroke-linecap: round; }
+    .gauge-value    { fill: none; stroke: var(--muted); stroke-width: 10; stroke-linecap: round; transition: stroke .3s; }
+    .gauge-card.riding .gauge-value { stroke: var(--accent); }
+    .gauge-tick     { stroke: var(--border2); }
+    .gauge-thresh   { stroke: var(--text); stroke-width: 2; stroke-linecap: round; }
+    .gauge-tick-label { fill: var(--muted); font-family: var(--font-mono); font-size: 10px; }
+
+    .gauge-readout {
+      margin-top: -66px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      pointer-events: none;
+    }
+    .gauge-value-num {
+      font-family: var(--font-mono);
+      font-size: 3.2rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      font-variant-numeric: tabular-nums;
+      color: var(--text);
+      line-height: 1;
+    }
+    .gauge-label {
+      font-size: .62rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      color: var(--muted);
+      margin-top: 6px;
+      text-transform: uppercase;
+    }
+
+    /* ── Hint small text ── */
+    .hint { letter-spacing: 0.005em; }
+
+    /* ── Video area wrapper (desktop) ── */
+    .video-area { display: contents; }
+    @media (max-width: 767px) {
+      .video-area { display: contents; }
+    }
+
+    /* Threshold preset container in sidebar gets a subtle block */
+    .sidebar .threshold-section {
+      display: flex; flex-direction: column; gap: 8px;
+    }
   </style>
 </head>
 <body>
@@ -814,6 +1083,7 @@
   <!-- Main -->
   <main>
 
+  <div class="video-area">
     <!-- Player -->
     <div class="player-wrap">
       <div id="yt-player"></div>
@@ -903,26 +1173,132 @@
       </div>
       <p class="hint">Chrome / Edge 系ブラウザ + HTTPS 環境が必要です（iOS Safari は非対応）</p>
     </div>
+  </div>
+
+    <!-- ── HUD (desktop only, Variant A floating layout) ── -->
+    <div class="hud hud-brand">
+      <div class="hud-logo">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+      </div>
+      <div>
+        <div class="hud-name">RunTube</div>
+        <div class="hud-sub"><span id="hudConnLabel">未接続</span></div>
+      </div>
+      <div class="ride-badge disconnected js-ride-badge">
+        <span class="js-ride-badge-icon">—</span>
+        <span class="js-ride-badge-text">未接続</span>
+      </div>
+    </div>
+
+    <div class="hud hud-summary hud-panel">
+      <div class="hud-summary-streak">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c0 6-5 7-5 12a5 5 0 0 0 10 0c0-2-1-3-2-4 3 0 5-3 5-6-2 0-4 1-5-2-1-1-2-1-3 0z"/></svg>
+        <span id="hudStreak">—</span>
+      </div>
+      <div class="hud-summary-divider"></div>
+      <div class="hud-summary-item">今日 <strong id="hudToday">0:00</strong></div>
+      <div class="hud-summary-item">平均 <strong id="hudAvg">—</strong> km/h</div>
+    </div>
+
+    <div class="hud hud-gauge-panel hud-panel">
+      <div class="gauge-card" id="hudGaugeCard">
+        <svg class="gauge-svg" width="220" height="140" viewBox="0 0 220 140">
+          <path id="hudGaugeTrack" class="gauge-track" d=""/>
+          <path id="hudGaugeValueArc" class="gauge-value" d=""/>
+          <g id="hudGaugeTicks"></g>
+          <line id="hudGaugeThresh" class="gauge-thresh" x1="0" y1="0" x2="0" y2="0"/>
+          <g id="hudGaugeTickLabels"></g>
+        </svg>
+        <div class="gauge-readout" style="margin-top:-58px">
+          <div class="gauge-value-num" id="hudGaugeValueNum" style="font-size:2.6rem">0.0</div>
+          <div class="gauge-label" id="hudGaugeLabel">km/h · thr 30</div>
+        </div>
+      </div>
+      <div class="bare-metrics">
+        <div>
+          <div class="bare-metric-label">Cadence</div>
+          <div class="bare-metric-row">
+            <span class="bare-metric-value js-cadence">—</span>
+            <span class="bare-metric-unit">rpm</span>
+          </div>
+        </div>
+        <div>
+          <div class="bare-metric-label">Power</div>
+          <div class="bare-metric-row">
+            <span class="bare-metric-value js-power">—</span>
+            <span class="bare-metric-unit">W</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hud hud-controls">
+      <div class="interval-banner js-interval-banner">
+        <div class="interval-banner-row">
+          <span class="interval-phase-label js-interval-phase">ウォームアップ</span>
+          <span class="interval-timer js-interval-timer">0:00</span>
+        </div>
+        <div class="interval-banner-row">
+          <span class="interval-round js-interval-round"></span>
+          <span class="interval-target js-interval-target">目標 — km/h</span>
+        </div>
+        <div class="interval-progress-track">
+          <div class="interval-progress-fill js-interval-fill" style="width:0%"></div>
+        </div>
+      </div>
+      <div class="hud-threshold hud-panel">
+        <button class="btn-threshold" data-kmh="30">30</button>
+        <button class="btn-threshold" data-kmh="35">35</button>
+        <button class="btn-threshold" data-kmh="40">40</button>
+        <button class="btn-threshold" data-kmh="50">50</button>
+      </div>
+      <div class="hud-btn-row">
+        <button class="btn-secondary js-video-change">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="7" width="15" height="10" rx="2"/><path d="M17 11l5-3v8l-5-3"/></svg>
+          動画
+        </button>
+        <button class="btn-interval js-interval-toggle">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          Auto
+        </button>
+        <button class="btn-primary js-connect-named" id="hudConnectBtn">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6.5 6.5l11 11L12 23V1l5.5 5.5-11 11"/></svg>
+          接続
+        </button>
+        <button class="btn-danger js-disconnect" disabled>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18.36 6.64A9 9 0 1 1 5.64 19.36"/><line x1="12" y1="2" x2="12" y2="12"/></svg>
+          切断
+        </button>
+      </div>
+    </div>
 
     <!-- Sidebar (right, shown on tablet+) -->
     <aside class="sidebar">
 
       <!-- Logo + conn -->
       <div class="logo">
-        <svg width="18" height="18" viewBox="0 0 28 28" fill="none">
-          <circle cx="14" cy="14" r="14" fill="url(#lg2)"/>
-          <path d="M11 9.5l8 4.5-8 4.5V9.5z" fill="#fff"/>
-          <defs>
-            <linearGradient id="lg2" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stop-color="#6c63ff"/>
-              <stop offset="100%" stop-color="#a78bfa"/>
-            </linearGradient>
-          </defs>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <polygon points="8 5 19 12 8 19 8 5" fill="oklch(0.25 0.05 135)"/>
         </svg>
         RunTube
         <div class="dot" id="connDot" style="margin-left:auto"></div>
       </div>
-      <span id="connLabel" style="font-size:.72rem;font-weight:600;color:var(--muted);margin-top:-6px">未接続</span>
+      <span id="connLabel" style="margin-top:-8px">未接続</span>
+
+      <!-- Hero: half-circle speed gauge -->
+      <div class="gauge-card" id="gaugeCard">
+        <svg class="gauge-svg" width="260" height="170" viewBox="0 0 260 170">
+          <path id="gaugeTrack" class="gauge-track" d=""/>
+          <path id="gaugeValueArc" class="gauge-value" d=""/>
+          <g id="gaugeTicks"></g>
+          <line id="gaugeThresh" class="gauge-thresh" x1="0" y1="0" x2="0" y2="0"/>
+          <g id="gaugeTickLabels"></g>
+        </svg>
+        <div class="gauge-readout">
+          <div class="gauge-value-num" id="gaugeValueNum">0.0</div>
+          <div class="gauge-label" id="gaugeLabel">km/h · thr 30</div>
+        </div>
+      </div>
 
       <!-- Stats -->
       <div class="stats-grid">
@@ -1997,6 +2373,126 @@
     renderHistory()
     updateProfileHint()
     renderCalendar()
+
+    /* ── Half-circle Speed Gauge — factory ── */
+    function makeGauge(ids, W, H) {
+      const CX = W/2, CY = H - 10, R = W/2 - 18, MAX = 60
+      const polar = (deg) => {
+        const rad = (deg - 180) * Math.PI / 180
+        return [CX + R * Math.cos(rad), CY - R * Math.sin(rad)]
+      }
+      const angleFor = (v) => 180 + Math.min(1, Math.max(0, v / MAX)) * 180
+      const arcPath = (a0, a1) => {
+        const [x0, y0] = polar(a0)
+        const [x1, y1] = polar(a1)
+        const large = a1 - a0 > 180 ? 1 : 0
+        return `M ${x0} ${y0} A ${R} ${R} 0 ${large} 0 ${x1} ${y1}`
+      }
+
+      const trackEl   = document.getElementById(ids.track)
+      const valArcEl  = document.getElementById(ids.valueArc)
+      const ticksEl   = document.getElementById(ids.ticks)
+      const labelsEl  = document.getElementById(ids.tickLabels)
+      const threshEl  = document.getElementById(ids.thresh)
+      const numEl     = document.getElementById(ids.num)
+      const lblEl     = document.getElementById(ids.label)
+      const cardEl    = document.getElementById(ids.card)
+      if (!trackEl) return { render: () => {} }
+
+      // Track + ticks (static)
+      trackEl.setAttribute('d', arcPath(180, 360))
+      for (let v = 0; v <= MAX; v += 10) {
+        const a = angleFor(v)
+        const rad = (a - 180) * Math.PI / 180
+        const inner = R - (v % 20 === 0 ? 12 : 6)
+        const outer = R
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line')
+        line.setAttribute('x1', CX + inner * Math.cos(rad))
+        line.setAttribute('y1', CY + inner * Math.sin(rad))
+        line.setAttribute('x2', CX + outer * Math.cos(rad))
+        line.setAttribute('y2', CY + outer * Math.sin(rad))
+        line.setAttribute('class', 'gauge-tick')
+        line.setAttribute('stroke-width', v % 20 === 0 ? 1.5 : 1)
+        ticksEl.appendChild(line)
+      }
+      ;[0, 30, 60].forEach(v => {
+        const a = angleFor(v)
+        const rad = (a - 180) * Math.PI / 180
+        const lr = R + 14
+        const t = document.createElementNS('http://www.w3.org/2000/svg', 'text')
+        t.setAttribute('x', CX + lr * Math.cos(rad))
+        t.setAttribute('y', CY + lr * Math.sin(rad) + 3)
+        t.setAttribute('class', 'gauge-tick-label')
+        t.setAttribute('text-anchor', 'middle')
+        t.textContent = v
+        labelsEl.appendChild(t)
+      })
+
+      function render(value, threshold, riding) {
+        const v = Math.max(0, Math.min(MAX, value || 0))
+        const a = angleFor(v)
+        valArcEl.setAttribute('d', arcPath(180, a <= 180.01 ? 180.01 : a))
+        const tA = angleFor(threshold)
+        const rad = (tA - 180) * Math.PI / 180
+        threshEl.setAttribute('x1', CX + (R - 18) * Math.cos(rad))
+        threshEl.setAttribute('y1', CY + (R - 18) * Math.sin(rad))
+        threshEl.setAttribute('x2', CX + (R + 6)  * Math.cos(rad))
+        threshEl.setAttribute('y2', CY + (R + 6)  * Math.sin(rad))
+        numEl.textContent = v.toFixed(1)
+        lblEl.textContent = `km/h · thr ${threshold}`
+        cardEl.classList.toggle('riding', !!riding)
+      }
+      return { render }
+    }
+
+    const GAUGE_SIDEBAR = makeGauge({
+      track: 'gaugeTrack', valueArc: 'gaugeValueArc', ticks: 'gaugeTicks',
+      tickLabels: 'gaugeTickLabels', thresh: 'gaugeThresh',
+      num: 'gaugeValueNum', label: 'gaugeLabel', card: 'gaugeCard',
+    }, 260, 170)
+    const GAUGE_HUD = makeGauge({
+      track: 'hudGaugeTrack', valueArc: 'hudGaugeValueArc', ticks: 'hudGaugeTicks',
+      tickLabels: 'hudGaugeTickLabels', thresh: 'hudGaugeThresh',
+      num: 'hudGaugeValueNum', label: 'hudGaugeLabel', card: 'hudGaugeCard',
+    }, 220, 140)
+
+    function syncGauge() {
+      const v = (currentSpeed === null || isNaN(currentSpeed)) ? 0 : currentSpeed
+      GAUGE_SIDEBAR.render(v, thresholdKmh, isRiding)
+      GAUGE_HUD.render(v, thresholdKmh, isRiding)
+    }
+    syncGauge()
+
+    // update gauge whenever speed text changes (piggyback on existing DOM updates)
+    const _mo = new MutationObserver(syncGauge)
+    $all('.js-speed').forEach(el => _mo.observe(el, { childList: true, characterData: true, subtree: true }))
+    // also after threshold changes
+    threshBtns.forEach(btn => btn.addEventListener('click', () => setTimeout(syncGauge, 0)))
+    // tick during interval (thresholdKmh shifts per phase)
+    setInterval(syncGauge, 1000)
+
+    /* ── HUD summary (streak / today / avg) ── */
+    function syncHudSummary() {
+      const streak = calcStreak()
+      const streakEl = document.getElementById('hudStreak')
+      if (streakEl) streakEl.textContent = streak > 0 ? `${streak}日連続` : '—'
+
+      const entry = normalizeEntry(loadRideLog()[todayKey()] || 0)
+      const todayEl = document.getElementById('hudToday')
+      if (todayEl) {
+        const m = Math.floor(entry.sec / 60), s = entry.sec % 60
+        todayEl.textContent = `${m}:${String(s).padStart(2, '0')}`
+      }
+      const avgEl = document.getElementById('hudAvg')
+      if (avgEl) avgEl.textContent = entry.avgKmh !== null ? entry.avgKmh.toFixed(1) : '—'
+
+      // mirror connLabel into HUD
+      const hudConn = document.getElementById('hudConnLabel')
+      if (hudConn) hudConn.textContent = connLabel.textContent || '未接続'
+    }
+    syncHudSummary()
+    setInterval(syncHudSummary, 1000)
+    new MutationObserver(syncHudSummary).observe(connLabel, { childList: true, characterData: true, subtree: true })
   </script>
 
 </body>
